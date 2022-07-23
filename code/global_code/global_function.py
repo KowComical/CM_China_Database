@@ -12,7 +12,7 @@ def search_file(file_path):
 def read_daily(useful_path, sector):
     import pandas as pd
     cm_path = search_file(useful_path)
-    cm_path = [cm_path[i] for i, x in enumerate(cm_path) if x.find('CM_v') != -1][0]
+    cm_path = [cm_path[i] for i, x in enumerate(cm_path) if x.find('carbonmonitor') != -1][0]
     df = pd.read_csv(cm_path)  # 全国日排放
     df = df[(df['country'] == 'China') & (
         df['sector'].str.contains(sector))].reset_index(drop=True)
