@@ -9,7 +9,7 @@ sys.dont_write_bytecode = True
 sys.path.append('K:\\Github\\CM_China_Database\\code\\')
 from global_code import global_function as af
 
-file_path = 'K:\\Github\\CM_China_Database\\data\\global_data\\'
+file_path = 'K:\\Github\\CM_China_Database\\data\\Global Data\\'
 # 下载之前先把旧的删掉
 file_name = af.search_file(file_path)
 file_name = [file_name[i] for i, x in enumerate(file_name) if x.find('carbonmonitor') != -1][0]

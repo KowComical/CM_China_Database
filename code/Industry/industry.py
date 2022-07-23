@@ -9,7 +9,7 @@ from global_code import global_function as af
 global_path = 'K:\\Github\\CM_China_Database\\data\\'
 raw_path = os.path.join(global_path, 'Industry', 'raw')
 craw_path = os.path.join(global_path, 'Industry', 'craw')
-useful_path = os.path.join(global_path, 'global_data')
+useful_path = os.path.join(global_path, 'Global Data')
 out_path = os.path.join(global_path, 'Industry', 'cleaned')
 
 df_sector = pd.read_csv(os.path.join(raw_path, 'ratio.csv'))  # 各部门的Ratio数据

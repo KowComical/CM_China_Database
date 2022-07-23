@@ -9,7 +9,7 @@ from global_code import global_function as af
 global_path = 'K:\\Github\\CM_China_Database\\data\\'
 raw_path = os.path.join(global_path, 'Residential', 'raw')
 craw_path = os.path.join(global_path, 'Residential', 'craw')
-useful_path = os.path.join(global_path, 'global_data')
+useful_path = os.path.join(global_path, 'Global Data')
 out_path = os.path.join(global_path, 'Residential', 'cleaned')
 
 # 读取Residential的daily数据
@@ -19,7 +19,6 @@ df_daily['year'] = df_daily['date'].dt.year
 
 # 读取取暖面积的省级权重
 df_ratio = pd.read_csv(os.path.join(raw_path, 'Heating area from 2014 to 2020.csv'))
-df_ratio = df_ratio[df_ratio['Provinces'] != 'Total'].reset_index(drop=True)
 # 行转列
 df_ratio = df_ratio.set_index(['Provinces']).stack().reset_index().rename(columns={'level_1': 'year', 0: 'ratio'})
 df_ratio['year'] = df_ratio['year'].astype(int)
