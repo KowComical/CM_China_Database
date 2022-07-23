@@ -1,14 +1,12 @@
 import pandas as pd
 import os
-from datetime import datetime
-
 import sys
 
 sys.dont_write_bytecode = True
-sys.path.append('K:\\Github\\中国CM网站\\code\\')
+sys.path.append('K:\\Github\\CM_China_Database\\code\\')
 from global_code import global_function as af
 
-global_path = 'K:\\Github\\中国CM网站\\data\\'
+global_path = 'K:\\Github\\CM_China_Database\\data\\'
 raw_path = os.path.join(global_path, 'Industry', 'raw')
 craw_path = os.path.join(global_path, 'Industry', 'craw')
 useful_path = os.path.join(global_path, 'global_data')
@@ -17,10 +15,8 @@ out_path = os.path.join(global_path, 'Industry', 'cleaned')
 df_sector = pd.read_csv(os.path.join(raw_path, 'ratio.csv'))  # 各部门的Ratio数据
 sector_list = df_sector['部门'].drop_duplicates().tolist()  # 各部门
 ratio_list = df_sector['Ratio'].drop_duplicates().tolist()  # 各部门ratio
-cm_path = af.search_file(useful_path)
-cm_path = [cm_path[i] for i, x in enumerate(cm_path) if x.find('CM_v') != -1][0]
-df_daily = pd.read_csv(cm_path)  # 全国日排放
-df_daily = df_daily[(df_daily['country'] == 'China') & (df_daily['sector'] == 'Industry')].reset_index(drop=True)
+# 读取industry的daily数据
+df_daily = af.read_daily(useful_path, 'Industry')
 for x, y in zip(sector_list, ratio_list):
     df_daily[x] = df_daily['co2'] * y
 df_daily = df_daily.drop(columns=['country', 'co2', 'sector'])
@@ -56,7 +52,6 @@ work['date'] = work['year'].astype(str) + '年' + work['month'].astype(str) + '�
 
 # 补全缺失的1&2月当月值
 all_type = df_data['指标'].drop_duplicates().tolist()  # 将所有的类型都提起出来放在列表里
-
 dangqi_list = [all_type[i] for i, x in enumerate(all_type) if x.find('当') != -1]
 leiji_list = [all_type[i] for i, x in enumerate(all_type) if x.find('累计') != -1]  # 按照当期累计分类成两个列表
 
@@ -101,11 +96,7 @@ df_city = pd.read_csv(os.path.join(useful_path, 'city_name.csv')).rename(columns
 df_result = pd.merge(df_result, df_city)[['date', '拼音', 'daily']]
 df_result['daily'] = df_result['daily'] / 1000  # 换单位
 df_result = df_result.rename(columns={'拼音': 'state', 'daily': 'value'})
-df_result['sector'] = 'Industry'
-# 输出输出两个版本
-now_date = datetime.now().strftime('%Y-%m-%d')
-# 第一个带日期放在history文件夹里备用
-df_result.to_csv(os.path.join(out_path, 'history', 'industry_result_%s.csv' % now_date), index=False,
-                 encoding='utf_8_sig')
-# 第二个放在外面当最新的用
-df_result.to_csv(os.path.join(out_path, 'industry_result.csv'), index=False, encoding='utf_8_sig')
+
+# 输出
+df_result = df_result[['date', 'state', 'value']]
+af.out_put(df_result, out_path, 'Industry')

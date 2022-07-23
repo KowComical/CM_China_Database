@@ -1,24 +1,19 @@
 import pandas as pd
 import os
-from datetime import datetime
-
 import sys
 
 sys.dont_write_bytecode = True
-sys.path.append('K:\\Github\\中国CM网站\\code\\')
+sys.path.append('K:\\Github\\CM_China_Database\\code\\')
 from global_code import global_function as af
 
-global_path = 'K:\\Github\\中国CM网站\\data\\'
+global_path = 'K:\\Github\\CM_China_Database\\data\\'
 raw_path = os.path.join(global_path, 'Power', 'raw')
 craw_path = os.path.join(global_path, 'Power', 'craw')
 useful_path = os.path.join(global_path, 'global_data')
 out_path = os.path.join(global_path, 'Power', 'cleaned')
 
 # 读取daily数据 并计算占比
-cm_path = af.search_file(useful_path)
-cm_path = [cm_path[i] for i, x in enumerate(cm_path) if x.find('CM_v') != -1][0]
-df_daily = pd.read_csv(cm_path)  # 全国日排放
-df_daily = df_daily[(df_daily['country'] == 'China') & (df_daily['sector'] == 'Power')].reset_index(drop=True)
+df_daily = af.read_daily(useful_path, 'Industry')
 df_daily['date'] = pd.to_datetime(df_daily['date'])
 df_daily['year'] = df_daily['date'].dt.year
 df_daily['month'] = df_daily['date'].dt.month
@@ -71,11 +66,7 @@ df_result = df_result.drop(columns=['ef', 'date'])
 df_result = pd.merge(df_result, df_ratio)
 df_result['value'] = df_result['value'] * df_result['ratio']
 df_result = df_result[['date', 'state', 'value']]
-df_result['sector'] = 'Power'
-# 输出输出两个版本
-now_date = datetime.now().strftime('%Y-%m-%d')
-# 第一个带日期放在history文件夹里备用
-df_result.to_csv(os.path.join(out_path, 'history', 'power_result_%s.csv' % now_date), index=False,
-                 encoding='utf_8_sig')
-# 第二个放在外面当最新的用
-df_result.to_csv(os.path.join(out_path, 'power_result.csv'), index=False, encoding='utf_8_sig')
+
+# 输出
+df_result = df_result[['date', 'state', 'value']]
+af.out_put(df_result, out_path, 'Power')
