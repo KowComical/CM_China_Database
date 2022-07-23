@@ -16,7 +16,7 @@ def read_daily(useful_path, sector):
     df = pd.read_csv(cm_path)  # 全国日排放
     df = df[(df['country'] == 'China') & (
         df['sector'].str.contains(sector))].reset_index(drop=True)
-    df = df.groupby(['date']).sum().reset_index()
+    df = df.groupby(['date']).sum().reset_index().drop(columns = ['timestamp'])
     return df
 
 

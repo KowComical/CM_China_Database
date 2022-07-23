@@ -18,33 +18,28 @@ ratio_list = df_sector['Ratio'].drop_duplicates().tolist()  # 各部门ratio
 # 读取industry的daily数据
 df_daily = af.read_daily(useful_path, 'Industry')
 for x, y in zip(sector_list, ratio_list):
-    df_daily[x] = df_daily['co2'] * y
-df_daily = df_daily.drop(columns=['country', 'co2', 'sector'])
+    df_daily[x] = df_daily['value'] * y
+df_daily = df_daily.drop(columns=['value'])
 df_daily = df_daily.set_index(['date']).stack().reset_index().rename(columns={'level_1': '部门', 0: '值'})
-df_daily['date'] = pd.to_datetime(df_daily['date'])
+df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
 df_daily['year'] = df_daily['date'].dt.year
 df_daily['month'] = df_daily['date'].dt.month
 
 # 根据需求 读取所有月排放数据
-file_name = af.search_file(craw_path)
+df_history = pd.read_csv(os.path.join(craw_path, 'industry_raw.csv'))
 xuqiu = df_sector['类型'].tolist()  # 读取需求的部门
-# 筛选
 df_data = pd.DataFrame()
-for y in xuqiu:
-    result = [file_name[i] for i, x in enumerate(file_name) if x.find(y) != -1][0]
-    temp = pd.read_csv(result)
-    df_data = pd.concat([df_data, temp]).reset_index(drop=True)
-# 数据清洗
-# 处理缺失省份的问题
-df_data = pd.pivot_table(df_data, index=['指标', '时间'], values='值', columns='省市名称').fillna(0).reset_index()
-df_data = df_data.set_index(['指标', '时间']).stack().reset_index().rename(columns={0: '值'})
+for xu in xuqiu:
+    xu = xu.replace('(', '[(]').replace(')', '[)]')  # 带括号的找不到 所以修改一下
+    temp = df_history[df_history['type'].str.contains(xu)].reset_index(drop=True)
+    if not temp.empty:
+        df_data = pd.concat([df_data, temp]).reset_index(drop=True)
+    else:
+        print(xu)
 
-df_data = df_data[['指标', '省市名称', '时间', '值']].reset_index(drop=True)
-df_data = df_data[df_data['时间'] >= 201901].reset_index(drop=True)  # 只要2019年之后的数据
-
-# 将日期格式统一为中文
-df_data['时间'] = pd.to_datetime(df_data['时间'], format='%Y%m').astype(str)
-df_data['时间'] = df_data['时间'].str.replace('-01', '月').str.replace('-', '年').str.replace('年0', '年')
+# # 数据清洗
+df_data = df_data.groupby(['name', 'date', 'type']).mean().reset_index()
+df_data = df_data.rename(columns={'type': '指标', 'date': '时间', 'data': '值', 'name': '省市名称'})
 
 # 读取工作日
 work = pd.read_csv(os.path.join(useful_path, 'workday.csv'))
@@ -94,7 +89,7 @@ df_result = df_result[['date', '部门', '地区', 'daily']]
 df_result = df_result.groupby(['date', '地区']).sum().reset_index().rename(columns={'地区': 'city'})
 df_city = pd.read_csv(os.path.join(useful_path, 'city_name.csv')).rename(columns={'全称': 'city'})
 df_result = pd.merge(df_result, df_city)[['date', '拼音', 'daily']]
-df_result['daily'] = df_result['daily'] / 1000  # 换单位
+df_result['daily'] = df_result['daily']
 df_result = df_result.rename(columns={'拼音': 'state', 'daily': 'value'})
 
 # 输出

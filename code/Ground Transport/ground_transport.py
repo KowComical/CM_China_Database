@@ -14,7 +14,7 @@ out_path = os.path.join(global_path, 'Ground Transport', 'cleaned')
 
 # 读取Ground Transport的daily数据
 df_daily = af.read_daily(useful_path, 'Ground Transport')
-df_daily['date'] = pd.to_datetime(df_daily['date'])
+df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
 df_daily['year'] = df_daily['date'].dt.year
 
 # 读取ratio
@@ -30,7 +30,7 @@ df_ratio['ratio'] = df_ratio['ratio'] / df_ratio['sum']
 df_ratio = df_ratio[['拼音', 'year', 'ratio']].rename(columns={'拼音': 'state'})
 # 乘以ratio 但是少2022年
 df_result = pd.merge(df_daily, df_ratio)
-df_result['value'] = df_result['co2'] * df_result['ratio'] / 1000
+df_result['value'] = df_result['value'] * df_result['ratio']
 # 输出
 df_result = df_result[['date', 'state', 'value']]
 af.out_put(df_result, out_path, 'Ground Transport')

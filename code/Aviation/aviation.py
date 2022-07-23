@@ -14,7 +14,7 @@ out_path = os.path.join(global_path, 'Aviation', 'cleaned')
 
 # 国内航空和国际航空的daily数据
 df_daily = af.read_daily(useful_path, 'Aviation')
-df_daily['date'] = pd.to_datetime(df_daily['date'])
+df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
 df_daily['year'] = df_daily['date'].dt.year
 
 # 省级航空比例的数据 # 这个不知道怎么来的 而且缺2022年的数据
@@ -27,7 +27,7 @@ df_ratio['year'] = df_ratio['year'].astype(int)
 
 # 乘以ratio 但是少2022年
 df_result = pd.merge(df_daily, df_ratio)
-df_result['value'] = df_result['co2'] * df_result['ratio'] / 100 / 1000
+df_result['value'] = df_result['value'] * df_result['ratio'] / 100
 
 # 输出
 df_result = df_result[['date', 'state', 'value']]

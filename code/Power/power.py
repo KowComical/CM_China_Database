@@ -13,23 +13,25 @@ useful_path = os.path.join(global_path, 'global_data')
 out_path = os.path.join(global_path, 'Power', 'cleaned')
 
 # 读取daily数据 并计算占比
-df_daily = af.read_daily(useful_path, 'Industry')
-df_daily['date'] = pd.to_datetime(df_daily['date'])
+df_daily = af.read_daily(useful_path, 'Power')
+df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
 df_daily['year'] = df_daily['date'].dt.year
 df_daily['month'] = df_daily['date'].dt.month
-df_sum = df_daily.groupby(['year', 'month']).sum().reset_index().rename(columns={'co2': 'sum'})
+df_sum = df_daily.groupby(['year', 'month']).sum().reset_index().rename(columns={'value': 'sum'})
 df_ratio = pd.merge(df_daily, df_sum)
-df_ratio['ratio'] = df_ratio['co2'] / df_ratio['sum']
+df_ratio['ratio'] = df_ratio['value'] / df_ratio['sum']
 df_ratio = df_ratio[['year', 'month', 'ratio', 'date']]
 
 # 读取当期和累计数据
 file_name = af.search_file(craw_path)
-dangqi_path = [file_name[i] for i, x in enumerate(file_name) if x.find('当期') != -1][0]
+dangqi_path = [file_name[i] for i, x in enumerate(file_name) if x.find('当月') != -1][0]
 leiji_path = [file_name[i] for i, x in enumerate(file_name) if x.find('累计') != -1][0]
-df_dangqi = pd.read_excel(dangqi_path, sheet_name='分省月度数据', header=3).dropna(axis=0, how='all', thresh=2).reset_index(
-    drop=True)  # 非空值小于2时删除行
-df_leiji = pd.read_excel(leiji_path, sheet_name='分省月度数据', header=3).dropna(axis=0, how='all', thresh=2).reset_index(
-    drop=True)  # 非空值小于2时删除行
+
+df_dangqi = pd.read_csv(dangqi_path)
+df_leiji = pd.read_csv(leiji_path)
+
+df_dangqi = pd.pivot_table(df_dangqi, index='name', values='data', columns='date').reset_index()
+df_leiji = pd.pivot_table(df_leiji, index='name', values='data', columns='date').reset_index()
 
 # 读取工作日
 work = pd.read_csv(os.path.join(useful_path, 'workday.csv'))
@@ -41,8 +43,8 @@ max_year = int(max(df_dangqi.columns[1:])[:4])
 for i in range(min_year, max_year + 1):  # 按照当前的年份的最小值和最大值来填充1月和2月数据
     df_dangqi['%s年1月' % i] = df_leiji['%s年2月' % i] * work[work['date'] == '%s年1月' % i]['ratio'].values
     df_dangqi['%s年2月' % i] = df_leiji['%s年2月' % i] * work[work['date'] == '%s年2月' % i]['ratio'].values
-
 # 整理当期数据
+df_dangqi = df_dangqi.rename(columns={'name': '地区'})
 df_dangqi = df_dangqi.set_index(['地区']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'value'})
 df_dangqi['date'] = pd.to_datetime(df_dangqi['date'], format='%Y年%m月')
 df_dangqi['year'] = df_dangqi['date'].dt.year
