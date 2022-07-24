@@ -8,7 +8,7 @@ from datetime import datetime
 requests.packages.urllib3.disable_warnings()
 
 # 参数
-file_path = 'K:\\Github\\CM_China_Database\\data\\Power\\craw\\'
+file_path = './data/Power/craw/'
 end_year = datetime.now().strftime('%Y')
 
 url = 'https://data.stats.gov.cn/easyquery.htm'
@@ -24,31 +24,41 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) '       
 
 keyvalue = {'m': 'QueryData', 'dbcode': 'fsyd', 'rowcode': 'reg', 'colcode': 'sj'}
 
-for k in ['A03010H01', 'A03010H02']:
-    keyvalue['wds'] = '[{"wdcode":"zb","valuecode":"%s"}]' % k
-    keyvalue['dfwds'] = '[{"wdcode":"sj","valuecode":"2019-%s"}]' % end_year
-    keyvalue['k1'] = str(int(time.time() * 1000))
-    keyvalue['h'] = 1
 
-    s = requests.session()
-    r = s.get(url, params=keyvalue, headers=headers, verify=False)
+def main():
+    craw()
 
-    # 提取数据
-    name = []
-    date = []
-    data = []
-    city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
-    time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
-    for c in city_list:
-        for t in time_list:
-            name.append(c)
-            date.append(t)
-    data_list = r.json()['returndata']['datanodes']
-    for i in range(len(data_list)):
-        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
-    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
-                           pd.DataFrame(data, columns=['data'])], axis=1)
-    if k == 'A03010H01':
-        df_result.to_csv(os.path.join(file_path, '火电当月.csv'), index=False, encoding='utf_8_sig')
-    else:
-        df_result.to_csv(os.path.join(file_path, '火电累计.csv'), index=False, encoding='utf_8_sig')
+
+def craw():
+    for k in ['A03010H01', 'A03010H02']:
+        keyvalue['wds'] = '[{"wdcode":"zb","valuecode":"%s"}]' % k
+        keyvalue['dfwds'] = '[{"wdcode":"sj","valuecode":"2019-%s"}]' % end_year
+        keyvalue['k1'] = str(int(time.time() * 1000))
+        keyvalue['h'] = 1
+
+        s = requests.session()
+        r = s.get(url, params=keyvalue, headers=headers, verify=False)
+
+        # 提取数据
+        name = []
+        date = []
+        data = []
+        city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
+        time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
+        for c in city_list:
+            for t in time_list:
+                name.append(c)
+                date.append(t)
+        data_list = r.json()['returndata']['datanodes']
+        for i in range(len(data_list)):
+            data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
+        df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
+                               pd.DataFrame(data, columns=['data'])], axis=1)
+        if k == 'A03010H01':
+            df_result.to_csv(os.path.join(file_path, '火电当月.csv'), index=False, encoding='utf_8_sig')
+        else:
+            df_result.to_csv(os.path.join(file_path, '火电累计.csv'), index=False, encoding='utf_8_sig')
+
+
+if __name__ == '__main__':
+    main()

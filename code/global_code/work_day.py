@@ -6,7 +6,7 @@ import calendar
 import sys
 
 sys.dont_write_bytecode = True
-sys.path.append('K:\\Github\\CM_China_Database\\code\\')
+sys.path.append('./code/')
 from global_code import global_function as af
 
 url = 'http://www.fynas.com/workday/count'
@@ -14,7 +14,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
                          'Chrome/99.0.4844.82 Safari/537.36 ',
            'Cookie': 'Hm_lvt_0fa7b8c467469bd8f2eaddd5dc1d440d=1648287024'}
 
-file_path = 'K:\\Github\\CM_China_Database\\data\\Global Data\\'
+file_path = './data/Global Data/'
 out_path = os.path.join(file_path, 'workday.csv')
 file_name = af.search_file(file_path)
 file_name = [file_name[i] for i, x in enumerate(file_name) if x.find('workday') != -1][0]
