@@ -21,11 +21,11 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)  # 关闭运行chrome时的打
 
 file_path = './data/Global Data/'
 
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument("--remote-debugging-port=9222")  # 虽然不知道为什么 但是不加这条会报错
-chrome_options.add_argument("--no-sandbox")
+# chrome_options = Options()
+# chrome_options.add_argument('--headless')
+# chrome_options.add_argument('--disable-gpu')
+# chrome_options.add_argument("--remote-debugging-port=9222")  # 虽然不知道为什么 但是不加这条会报错
+# chrome_options.add_argument("--no-sandbox")
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
 
 
 def upload():
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)  # 打开浏览器
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))  # 打开浏览器
     driver.implicitly_wait(60)
     driver.get('https://lsce:lsce2021BPwd@datas.carbonmonitor.org/admin/')  # 登录网址
 
