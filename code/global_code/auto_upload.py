@@ -44,7 +44,7 @@ def upload():
     df = pd.read_csv(os.path.join(file_path, 'all_data.csv'))
     df.to_csv('C:\\all_data.csv', index=False, encoding='utf_8_sig')
     time.sleep(5)
-    pyautogui.write('C:\all_data.csv')  # 输入文件
+    pyautogui.write('C:\%s.csv' % 'all_data')  # 输入文件
     time.sleep(1)
     pyautogui.press('enter')  # 点击确定
 
