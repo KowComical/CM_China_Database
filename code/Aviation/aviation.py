@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import aviation_craw as g
 import sys
 
 sys.dont_write_bytecode = True
@@ -14,6 +15,7 @@ out_path = os.path.join(global_path, 'Aviation', 'cleaned')
 
 
 def main():
+    g.main()  # 爬取pdf
     process()
 
 
@@ -42,5 +44,3 @@ def process():
 
 if __name__ == '__main__':
     main()
-
-
