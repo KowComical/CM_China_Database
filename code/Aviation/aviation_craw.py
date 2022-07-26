@@ -15,7 +15,7 @@ sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
 
-file_path = './data/Aviation/raw/'
+file_path = './data/Aviation/craw/'
 out_path = os.path.join(file_path, '生产资料')
 
 # 设置备注
