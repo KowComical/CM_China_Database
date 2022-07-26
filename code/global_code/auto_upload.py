@@ -21,12 +21,6 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)  # 关闭运行chrome时的打
 
 file_path = './data/Global Data/'
 
-# chrome_options = Options()
-# chrome_options.add_argument('--headless')
-# chrome_options.add_argument('--disable-gpu')
-# chrome_options.add_argument("--remote-debugging-port=9222")  # 虽然不知道为什么 但是不加这条会报错
-# chrome_options.add_argument("--no-sandbox")
-
 
 def main():
     upload()
