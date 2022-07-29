@@ -34,7 +34,7 @@ def process():
     df_daily['month'] = df_daily['date'].dt.month
 
     # 根据需求 读取所有月排放数据
-    df_history = pd.read_csv(os.path.join(craw_path, 'industry_raw.csv'))
+    df_history = pd.read_csv(os.path.join(craw_path, 'Industry_raw.csv'))
     xuqiu = df_sector['类型'].tolist()  # 读取需求的部门
     df_data = pd.DataFrame()
     for xu in xuqiu:
