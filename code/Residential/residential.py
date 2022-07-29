@@ -5,6 +5,7 @@ import sys
 sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
+from Residential import residential_craw as rc
 
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Residential', 'raw')
@@ -14,6 +15,7 @@ out_path = os.path.join(global_path, 'Residential', 'cleaned')
 
 
 def main():
+    rc.main()  # 爬取并处理供热面积
     process()
 
 
@@ -24,7 +26,7 @@ def process():
     df_daily['year'] = df_daily['date'].dt.year
 
     # 读取取暖面积的省级权重
-    df_ratio = pd.read_csv(os.path.join(raw_path, 'Heating area from 2014 to 2020.csv'))
+    df_ratio = pd.read_csv(os.path.join(raw_path, 'ratio.csv'))
     # 行转列
     df_ratio = df_ratio.set_index(['Provinces']).stack().reset_index().rename(columns={'level_1': 'year', 0: 'ratio'})
     df_ratio['year'] = df_ratio['year'].astype(int)
