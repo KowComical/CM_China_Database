@@ -26,6 +26,7 @@ jobs:
           pip install seaborn
           pip install pyautogui
           pip install pdfplumber
+          pip install sklearn
       - name: process data
         run: python ./code/global_code/all_process.py
       - name: commit and push if it changed
