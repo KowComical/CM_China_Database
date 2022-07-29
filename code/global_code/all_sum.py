@@ -9,7 +9,7 @@ sys.path.append('./code/')
 from global_code import global_function as af
 
 global_path = './data/'
-out_path = os.path.join(global_path, 'Global Data')
+out_path = os.path.join(global_path, 'global_data')
 
 
 def main():

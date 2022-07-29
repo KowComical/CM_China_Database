@@ -10,7 +10,7 @@ sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
 
-file_path = './data/Global Data/'
+file_path = './data/global_data/'
 
 
 def main():

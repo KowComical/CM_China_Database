@@ -19,7 +19,7 @@ import logging
 
 logging.getLogger('WDM').setLevel(logging.NOTSET)  # 关闭运行chrome时的打印内容
 
-file_path = './data/Global Data/'
+file_path = './data/global_data/'
 
 
 def main():

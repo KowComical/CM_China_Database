@@ -10,7 +10,7 @@ from Power import power_craw as pc
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Power', 'raw')
 craw_path = os.path.join(global_path, 'Power', 'craw')
-useful_path = os.path.join(global_path, 'Global Data')
+useful_path = os.path.join(global_path, 'global_data')
 out_path = os.path.join(global_path, 'Power', 'cleaned')
 
 

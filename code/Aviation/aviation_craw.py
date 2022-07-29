@@ -4,7 +4,9 @@ import pandas as pd
 import os
 import requests
 import pdfplumber
+from datetime import datetime
 import numpy as np
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -15,8 +17,13 @@ sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
 
-file_path = './data/Aviation/craw/'
+global_path = './data/'
+aviation_path = os.path.join(global_path, 'Aviation')
+file_path = os.path.join(aviation_path, 'craw')
 out_path = os.path.join(file_path, '生产资料')
+out_path_gdp = os.path.join(file_path, 'GDP.csv')
+raw_path = os.path.join(aviation_path, 'raw')
+end_year = datetime.now().strftime('%Y')
 
 # 设置备注
 options = webdriver.ChromeOptions()
@@ -26,11 +33,13 @@ options.add_argument('--disable-gpu')
 
 
 def main():
-    craw()
-    extract_pdf()
+    craw_zhibiao()  # 爬取航空指标数据
+    extract_pdf()  # 将pdf转为数据
+    craw_gdp()  # 爬取gdp数据
+    gdp_raw()  # 将gdp整理输出到raw
 
 
-def craw():
+def craw_zhibiao():
     # 打开网页
     url = 'http://www.caac.gov.cn/so/s?qt=中国民航%20月份主要生产指标统计.pdf&siteCode=bm70000001&tab=xxgk&toolsStatus=1'
     wd = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)  # 打开浏览器
@@ -93,6 +102,76 @@ def extract_pdf():
     df_result = pd.pivot_table(df_result, index=['date', 'unit'], values='value', columns='region').reset_index()
     # 输出
     df_result.to_csv(os.path.join(file_path, '各地区旅客吞吐量.csv'), index=False, encoding='utf_8_sig')
+
+
+def craw_gdp():
+    url = 'https://data.stats.gov.cn/easyquery.htm'
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) '                         'AppleWebKit/605.1'
+                      '.15 (KHTML, like Gecko) '                         'Version/12.0 Safari/605.1.15 ',
+        'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0102'}
+
+    keyvalue = {'m': 'QueryData', 'dbcode': 'fsjd', 'rowcode': 'reg', 'colcode': 'sj',
+                'wds': '[{"wdcode":"zb","valuecode":"A010101"}]',
+                'dfwds': '[{"wdcode":"sj","valuecode":"%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
+
+    # 提取数据
+    r = requests.get(url, params=keyvalue, headers=headers, verify=False)
+    name = []
+    date = []
+    data = []
+    city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
+    time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
+    for c in city_list:
+        for t in time_list:
+            name.append(c)
+            date.append(t)
+    data_list = r.json()['returndata']['datanodes']
+    for i in range(len(data_list)):
+        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
+    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
+                           pd.DataFrame(data, columns=['data'])], axis=1)
+    # 读取历史数据
+    df_history = pd.read_csv(out_path_gdp)
+    # 合并结果并删除重复值
+    df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
+    df_result = df_result.groupby(['name', 'date']).mean().reset_index()
+    # 输出结果
+    df_result.to_csv(out_path_gdp, index=False, encoding='utf_8_sig')
+
+
+def gdp_raw():
+    df_gdp = pd.read_csv(out_path_gdp)
+
+    # 将所有中文季度转为日期格式
+    q_list = ['第一季度', '第二季度', '第三季度', '第四季度']
+    num_list = ['01', '04', '07', '10']
+    for q, d in zip(q_list, num_list):
+        df_gdp['date'] = df_gdp['date'].str.replace('年%s' % q, '-%s' % d)
+
+        # 将季度分成月份
+    province_list = df_gdp['name'].unique()
+    df_all = pd.DataFrame()
+    for p in province_list:
+        temp = df_gdp[df_gdp['name'] == p].reset_index(drop=True)
+        df_result = pd.DataFrame()
+        for q, d in zip(q_list, num_list):
+            temp['date'] = temp['date'].str.replace('年%s' % q, '-%s' % d)  # 将所有中文季度转为日期格式
+            date_list = temp['date'].unique()  # 生成当前省份的日期列表
+            df_province = pd.DataFrame()
+            for date in date_list:
+                df_date = pd.DataFrame()
+                date_range = pd.date_range(start=date, periods=3, freq='M').strftime("%Y-%m")
+                next_temp = temp[temp['date'] == date].reset_index(drop=True)
+                df_date['date'] = date_range
+                df_date['value'] = next_temp['data'].tolist()[0] / 3  # 将季度数据平分到月度
+                df_date['province'] = p
+                df_province = pd.concat([df_province, df_date]).reset_index(drop=True)
+            df_result = pd.concat([df_result, df_province]).reset_index(drop=True)
+        df_all = pd.concat([df_all, df_result]).reset_index(drop=True)
+    # 输出
+    df_all.to_csv(os.path.join(raw_path, 'gdp_raw.csv'), index=False, encoding='utf_8_sig')
 
 
 if __name__ == '__main__':

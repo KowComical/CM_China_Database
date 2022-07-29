@@ -10,7 +10,7 @@ from global_code import global_function as af
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Aviation', 'raw')
 craw_path = os.path.join(global_path, 'Aviation', 'craw')
-useful_path = os.path.join(global_path, 'Global Data')
+useful_path = os.path.join(global_path, 'global_data')
 out_path = os.path.join(global_path, 'Aviation', 'cleaned')
 
 
