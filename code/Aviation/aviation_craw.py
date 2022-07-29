@@ -37,6 +37,7 @@ def main():
     extract_pdf()  # 将pdf转为数据
     craw_gdp()  # 爬取gdp数据
     gdp_raw()  # 将gdp整理输出到raw
+    ratio()  # 计算所需占比
 
 
 def craw_zhibiao():
@@ -100,6 +101,10 @@ def extract_pdf():
             pass
     # 列转行
     df_result = pd.pivot_table(df_result, index=['date', 'unit'], values='value', columns='region').reset_index()
+    df_result = df_result.rename(columns={'其中：东部地区': '东部地区'}).drop(columns=['旅客吞吐量'])
+    # 行转列
+    df_result = df_result.set_index(['date', 'unit']).stack().reset_index().rename(
+        columns={'level_2': '地区', 0: 'zhibiao'})
     # 输出
     df_result.to_csv(os.path.join(file_path, '各地区旅客吞吐量.csv'), index=False, encoding='utf_8_sig')
 
@@ -142,6 +147,7 @@ def craw_gdp():
 
 
 def gdp_raw():
+    df_city = pd.read_csv(os.path.join(global_path, 'global_data', 'city_name.csv'))
     df_gdp = pd.read_csv(out_path_gdp)
 
     # 将所有中文季度转为日期格式
@@ -170,8 +176,45 @@ def gdp_raw():
                 df_province = pd.concat([df_province, df_date]).reset_index(drop=True)
             df_result = pd.concat([df_result, df_province]).reset_index(drop=True)
         df_all = pd.concat([df_all, df_result]).reset_index(drop=True)
+    # 统一省份名
+    df_all = pd.merge(df_all, df_city, left_on='province', right_on='全称')[['区域', '拼音', 'date', 'value']]
+    df_all = df_all.groupby(['区域', '拼音', 'date']).mean().reset_index()
     # 输出
     df_all.to_csv(os.path.join(raw_path, 'gdp_raw.csv'), index=False, encoding='utf_8_sig')
+
+
+def ratio():
+    # 按地区算各省份gdp占比
+    df_all = pd.read_csv(os.path.join(raw_path, 'gdp_raw.csv'))
+    df_sum = df_all.groupby(['区域', 'date']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_all = pd.merge(df_all, df_sum)
+    df_all['ratio'] = df_all['value'] / df_all['sum']
+    df_all = df_all[['区域', '拼音', 'date', 'ratio']].reset_index(drop=True)
+    df_all['date'] = pd.to_datetime(df_all['date'])
+    # 计算各省份指标占比
+    df = pd.read_csv(os.path.join(file_path, '各地区旅客吞吐量.csv'))
+    df['date'] = pd.to_datetime(df['date'], format='%Y年%m月')
+    df_ratio = pd.merge(df, df_all, left_on=['date', '地区'], right_on=['date', '区域'])
+    df_ratio['value'] = df_ratio['zhibiao'] * df_ratio['ratio']
+    # 做最后一步全国占比
+    df_ratio = df_ratio[['date', '拼音', 'value']]
+    df_country = df_ratio.groupby(['date']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_result = pd.merge(df_ratio, df_country)
+    df_result['ratio'] = df_result['value'] / df_result['sum']
+    df_result = df_result[['date', '拼音', 'ratio']]
+    # 缺失值按照前一年的填补
+    df_nan = df_result[df_result.isna().any(axis=1)].reset_index(drop=True).drop(columns=['ratio'])
+    df_nan['year'] = df_nan['date'].dt.year - 1
+    df_nan['month'] = df_nan['date'].dt.month
+    df_nan['per_date'] = pd.to_datetime(df_nan[['year', 'month']].assign(Day=1))  # 合并年月
+    df_nan = pd.merge(df_nan, df_result, left_on=['per_date', '拼音'], right_on=['date', '拼音'])[
+        ['date_x', '拼音', 'ratio']].rename(columns={'date_x': 'date'})
+
+    # 合并缺失值
+    df_rest = df_result[~df_result.isna().any(axis=1)].reset_index(drop=True)
+    df_result = pd.concat([df_rest, df_nan]).reset_index(drop=True)
+    # 输出结果
+    df_result.to_csv(os.path.join(raw_path, 'ratio.csv'), index=False, encoding='utf_8_sig')
 
 
 if __name__ == '__main__':
