@@ -28,7 +28,7 @@ except Exception as e:
     print(e)
 
 try:
-    sys.path.append('./code/Ground Transposrt/')
+    sys.path.append('./code/Ground_Transport/')
     print('#######################')
     print('Begin process Ground Transposrt...')
     import ground_transport as gt
