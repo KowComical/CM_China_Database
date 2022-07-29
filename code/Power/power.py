@@ -1,5 +1,8 @@
 import pandas as pd
 import os
+from datetime import datetime
+from sklearn.linear_model import LinearRegression
+
 import sys
 
 sys.dont_write_bytecode = True
@@ -12,6 +15,8 @@ raw_path = os.path.join(global_path, 'Power', 'raw')
 craw_path = os.path.join(global_path, 'Power', 'craw')
 useful_path = os.path.join(global_path, 'global_data')
 out_path = os.path.join(global_path, 'Power', 'cleaned')
+
+end_year = datetime.now().strftime('%Y')
 
 
 def main():
@@ -61,13 +66,13 @@ def process():
         columns=['地区'])
     df_dangqi = pd.merge(df_dangqi, df_city)[['date', 'year', '拼音', 'value']].rename(columns={'拼音': 'state'})
 
-    # 乘以排放因子 # 并不知道这个排放因子是如何得来的 而且为什么推算的时候要乘以8 这里暂用现成的 未来要更新这里
-    df_ef = pd.read_csv(os.path.join(raw_path, 'ef.csv'))
-    df_ef = df_ef.set_index(['省级电网']).stack().reset_index().rename(columns={'level_1': 'time', 0: 'ef'}).rename(
+    # 乘以排放因子
+    df_ef = predict_ef()
+    df_ef = df_ef.set_index(['省级电网']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'ef'}).rename(
         columns={'省级电网': 'state'})
-    df_ef['year'] = ('20' + df_ef['time'].str.replace('年排放因子', '').str.replace(' ', '')).astype(int)
-    df_ef = pd.merge(df_ef, df_city, left_on='state', right_on='中文')[['year', '拼音', 'ef']].rename(
-        columns={'拼音': 'state'})
+
+    df_ef = pd.merge(df_ef, df_city, left_on='state', right_on='中文')[['date', '拼音', 'ef']].rename(
+        columns={'拼音': 'state', 'date': 'year'})
 
     df_result = pd.merge(df_dangqi, df_ef)
     df_result['value'] = df_result['value'] * df_result['ef'] * 0.1  # 将所有值都乘以0.1 保持单位一致
@@ -80,8 +85,44 @@ def process():
     df_result = df_result[['date', 'state', 'value']]
 
     # 输出
-    df_result = df_result[['date', 'state', 'value']]
     af.out_put(df_result, out_path, 'Power')
+
+
+def predict_ef():
+    df = pd.read_csv(os.path.join(raw_path, 'ef.csv'))
+    df = df.set_index(['省级电网']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'data'})
+    df['date'] = 2000 + df['date'].str.replace('年排放因子', '').astype(int)
+    df_result = df.copy()
+    province_list = df_result['省级电网'].unique()
+    start_year = max(df_result['date']) + 1
+    df_predicted = pd.DataFrame()
+    for p in province_list:
+        temp = df_result[df_result['省级电网'] == p].reset_index(drop=True)
+        # 线性填充
+        for i in range(start_year, int(end_year) + 1):
+            X = temp['date'].values.reshape(-1, 1)  # put your dates in here
+            y = temp['data'].values.reshape(-1, 1)  # put your kwh in here
+
+            model = LinearRegression()
+            model.fit(X, y)
+
+            X_predict = pd.DataFrame([i]).values.reshape(-1, 1)  # put the dates of which you want to predict kwh here
+            y_predict = model.predict(X_predict)
+
+            # 将结果加入df中
+            predict = pd.DataFrame([[int(X_predict), float(y_predict)]], columns=temp.columns[1:])
+            predict['省级电网'] = p
+            temp = pd.concat([temp, predict]).reset_index(drop=True)
+            df_predicted = pd.concat([df_predicted, temp]).reset_index(drop=True)
+
+    # 将所有预测的不好的改为0
+    df_null = df_predicted[df_predicted['data'] < 0].reset_index(drop=True)
+    df_null['data'] = 0
+    df_rest = df_predicted[df_predicted['data'] >= 0].reset_index(drop=True)
+    df_all = pd.concat([df_null, df_rest]).reset_index(drop=True)
+    # 列转行
+    df_all = pd.pivot_table(df_all, index='省级电网', values='data', columns='date').reset_index()
+    return df_all
 
 
 if __name__ == '__main__':
