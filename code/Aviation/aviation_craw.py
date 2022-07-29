@@ -85,10 +85,10 @@ def extract_pdf():
     name = re.compile(r'生产资料/(?P<name>.*?)航空生产资料', re.S)
     df_result = pd.DataFrame()
     for f in file_name:
-        try:
-            pdf = pdfplumber.open(f)
-            dfs = pdf.pages[0].extract_tables()
-            temp = pd.DataFrame(dfs[0]).fillna(np.nan).replace('', np.nan).replace('\n', '')
+        pdf = pdfplumber.open(f)
+        dfs = pdf.pages[0].extract_tables()
+        temp = pd.DataFrame(dfs[0]).fillna(np.nan).replace('', np.nan).replace('\n', '')
+        if '旅客吞吐量' in temp[0].tolist():  # 如果有旅客吞吐量
             temp = temp.dropna(axis=0, how='all', thresh=2).reset_index(drop=True)  # 非空值小于2时删除行
             temp = temp.dropna(axis=1, how='all', thresh=4)
             # 提取有效信息范围
@@ -97,8 +97,6 @@ def extract_pdf():
             temp.columns = ['region', 'unit', 'value']
             temp['date'] = name.findall(f)[0]
             df_result = pd.concat([df_result, temp]).reset_index(drop=True)
-        except:
-            pass
     # 列转行
     df_result = pd.pivot_table(df_result, index=['date', 'unit'], values='value', columns='region').reset_index()
     df_result = df_result.rename(columns={'其中：东部地区': '东部地区'}).drop(columns=['旅客吞吐量'])
@@ -194,7 +192,7 @@ def ratio():
     # 计算各省份指标占比
     df = pd.read_csv(os.path.join(file_path, '各地区旅客吞吐量.csv'))
     df['date'] = pd.to_datetime(df['date'], format='%Y年%m月')
-    df_ratio = pd.merge(df, df_all, left_on=['date', '地区'], right_on=['date', '区域'])
+    df_ratio = pd.merge(df, df_all, left_on=['date', 'region'], right_on=['date', '区域'])
     df_ratio['value'] = df_ratio['zhibiao'] * df_ratio['ratio']
     # 做最后一步全国占比
     df_ratio = df_ratio[['date', '拼音', 'value']]
