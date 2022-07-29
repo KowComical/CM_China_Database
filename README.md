@@ -1,7 +1,7 @@
 # CM_China_Database
 
 ### Aviation
-整理完 省级航空ratio并不知道如何得到的 并且没有2022年
+整理完 ratio 按照各省GDP比例拆分到省的 GDP数据会延后一点 缺失的会按照前一年的比例填充
 
 ### Ground Transport
 整理完 ratio并不知道如何得到的 并且没有2022年
