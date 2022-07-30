@@ -47,10 +47,7 @@ def craw():
         data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
     df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
                            pd.DataFrame(data, columns=['data'])], axis=1)
-    df_result.to_csv(os.path.join(craw_path, '汽车保有量.csv'), index=False, encoding='utf_8_sig')
 
-    # 继续清理
-    df_result['date'] = df_result['date'].str.replace('年', '').astype(int)
     # 线性填充缺失的汽车保有量
     df_result = pd.pivot_table(df_result, index='name', values='data', columns='date').reset_index()
     for d in df_result.columns:
@@ -58,7 +55,17 @@ def craw():
             df_result = df_result.drop(columns=d)  # 则删掉
     # 行转列
     df_result = df_result.set_index(['name']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'data'})
-
+    # 读取历史数据
+    df_history = pd.read_csv(os.path.join(craw_path, '汽车保有量.csv'))
+    # 合并新旧数据
+    df_result = pd.concat([df_history, df_result]).reset_index(drop=True)
+    # 删除重复值
+    df_result = df_result.groupby(['name', 'date', 'data']).mean().reset_index()
+    # 输出raw
+    df_result.to_csv(os.path.join(craw_path, '汽车保有量.csv'), index=False, encoding='utf_8_sig')
+    # 继续清理
+    df_result['date'] = df_result['date'].str.replace('年', '').astype(int)
+    df_result = df_result[df_result['date'] >= 2010].reset_index(drop=True)  # 以为多了年份预测会更好 结果更差 不知道为啥
     province_list = df_result['name'].unique()
     start_year = max(df_result['date']) + 1
     df_predicted = pd.DataFrame()

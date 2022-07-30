@@ -41,9 +41,12 @@ def process():
     df_all['timestamp'] = df_all['timestamp'].astype(int)
 
     df_all = df_all.drop(columns=['utc'])
-    df_all['date'] = df_all['date'].dt.strftime('%d/%m/%Y')
+
     df_all = df_all[['state', 'date', 'sector', 'value', 'timestamp']]  # 不这样做就会有bug 我也不知道为什么
     df_all['state'] = df_all['state'].str.replace('InnerMongolia', 'Inner Mongolia')
+    df_all['sector'] = df_all['sector'].str.replace('Ground_Transport', 'Ground Transport')
+    df_all['date'] = df_all['date'].dt.strftime('%d/%m/%Y')
+
     df_all.to_csv(os.path.join(out_path, 'all_data.csv'), index=False, encoding='utf_8_sig')
 
 
