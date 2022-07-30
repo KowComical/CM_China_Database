@@ -26,7 +26,9 @@ def main():
 
 
 def upload():
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))  # 打开浏览器
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--no-sandbox')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)  # 打开浏览器
     driver.implicitly_wait(60)
     driver.get('https://lsce:lsce2021BPwd@datas.carbonmonitor.org/admin/')  # 登录网址
 
