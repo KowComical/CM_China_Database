@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import os
 import requests
+requests.packages.urllib3.disable_warnings()
 import pdfplumber
 from datetime import datetime
 import numpy as np
@@ -57,7 +58,6 @@ def craw_zhibiao():
         '主要生产指标统计', '').str.replace(
         '主要运输生产指标统计', '').str.replace(
         '民航', '').str.replace('4国', '').str.replace('份', '').str.replace(' ', '').str.replace('"', '')
-    df_result['name'] = df_result['name'].replace(df_result['name'].tolist()[-1], df_result['name'].tolist()[-1][:8])
     df_result['date'] = pd.to_datetime(df_result['name'], format='%Y年%m月').dt.strftime('%Y-%m')
     df_result['name'] = pd.to_datetime(df_result['date']).dt.strftime('%Y年%m月航空生产资料')
 
