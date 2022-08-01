@@ -1,3 +1,4 @@
+[![all_process](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml)
 # CM_China_Database
 
 ### Aviation
