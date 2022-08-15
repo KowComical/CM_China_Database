@@ -33,7 +33,7 @@ def process():
     df_result['value'] = df_result['value'] * df_result['ratio']
 
     # 输出
-    df_result = df_result[['date', 'state', 'value']]
+    df_result = df_result[['date', 'state', 'value']].rename(columns={'拼音': 'state'})
     af.out_put(df_result, out_path, 'Aviation')
 
 
