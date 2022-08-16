@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import os
 import requests
+
 requests.packages.urllib3.disable_warnings()
 import pdfplumber
 from datetime import datetime
@@ -118,9 +119,11 @@ def craw_gdp():
     keyvalue = {'m': 'QueryData', 'dbcode': 'fsjd', 'rowcode': 'reg', 'colcode': 'sj',
                 'wds': '[{"wdcode":"zb","valuecode":"A010101"}]',
                 'dfwds': '[{"wdcode":"sj","valuecode":"%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
+    Headers['Cookies'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=6mSmspVrNHPmsfECx-Uz-P58Ue5Yf8TxhzENT3BAB3JjIr8KbYqn' \
+                         '!1294272777; u=5 '
 
     # 提取数据
-    r = requests.get(url, params=keyvalue, headers=headers)
+    r = requests.get(url, params=keyvalue, headers=headers, verify=False)
     name = []
     date = []
     data = []
