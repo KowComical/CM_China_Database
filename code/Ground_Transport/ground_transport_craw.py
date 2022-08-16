@@ -32,7 +32,7 @@ def main():
 
 
 def craw():
-    r = requests.get(url, params=keyvalue, headers=headers, verify=False)
+    r = requests.get(url, params=keyvalue, headers=headers)
     name = []
     date = []
     data = []

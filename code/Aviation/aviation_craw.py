@@ -120,7 +120,7 @@ def craw_gdp():
                 'dfwds': '[{"wdcode":"sj","valuecode":"%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
 
     # 提取数据
-    r = requests.get(url, params=keyvalue, headers=headers, verify=False)
+    r = requests.get(url, params=keyvalue, headers=headers)
     name = []
     date = []
     data = []

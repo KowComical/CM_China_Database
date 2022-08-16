@@ -49,7 +49,7 @@ def craw():
                     'h': 1}
 
         s = requests.session()
-        r = s.get(url, params=keyvalue, headers=headers, verify=False)
+        r = s.get(url, params=keyvalue, headers=headers)
         if r.json()['returncode'] != 501:  # 如果数据更新了再爬
             # 提取数据
             name = []
