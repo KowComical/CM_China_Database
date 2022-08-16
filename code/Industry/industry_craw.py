@@ -31,14 +31,9 @@ def craw():
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) '                         'AppleWebKit/605.1'
                       '.15 (KHTML, like Gecko) '                         'Version/12.0 Safari/605.1.15 ',
-        'Cookie': 'u=6; '
-                  'wzws_cid'
-                  '=e8dd55e9229bc223d01d4e0f49004bcf5673511c1a0e2b62c3be28b18c8cc3d2f901dff2244ab6415125cea22b'
-                  '253ee3ae79febce318639f6be642bdb9c6b1b07d1d6d13c76bc68cee8a83ff40ae5119; '
-                  'JSESSIONID=N74rWoHGztsgiVi9 '
-                  'yZlFckhk7X2v1DEWnBzFadKR1bXHR3OW_S0X!2063508790',
-        'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=A01'}
-
+        'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=A01',
+        'Cookies': '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=6mSmspVrNHPmsfECx-Uz-P58Ue5Yf8TxhzENT3BAB3JjIr8KbYqn'
+                   '!1294272777; u=5 '}
     code_list = code['code'].tolist()
     name_list = code['cname'].tolist()
     for j, k in zip(code_list, name_list):

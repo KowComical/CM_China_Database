@@ -25,6 +25,8 @@ headers = {
 keyvalue = {'m': 'QueryData', 'dbcode': 'fsnd', 'rowcode': 'reg', 'colcode': 'sj',
             'wds': '[{"wdcode":"zb","valuecode":"A0B0507"}]',
             'dfwds': '[{"wdcode":"sj","valuecode":"2004-%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
+headers['Cookies'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=6mSmspVrNHPmsfECx-Uz-P58Ue5Yf8TxhzENT3BAB3JjIr8KbYqn' \
+                     '!1294272777; u=5 '
 
 
 def main():
