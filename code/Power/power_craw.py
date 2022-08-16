@@ -37,7 +37,7 @@ def craw():
         keyvalue['h'] = 1
 
         s = requests.session()
-        r = s.get(url, params=keyvalue, headers=headers)
+        r = s.get(url, params=keyvalue, headers=headers, timeout=20)
 
         # 提取数据
         name = []
