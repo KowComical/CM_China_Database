@@ -19,14 +19,14 @@ end_year = datetime.now().strftime('%Y')
 url = 'https://data.stats.gov.cn/easyquery.htm'
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) '                         'AppleWebKit/605.1'
-                  '.15 (KHTML, like Gecko) '                         'Version/12.0 Safari/605.1.15 ',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 '
+                  'Safari/537.36',
     'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0102'}
 keyvalue = {'m': 'QueryData', 'dbcode': 'fsnd', 'rowcode': 'reg', 'colcode': 'sj',
             'wds': '[{"wdcode":"zb","valuecode":"A0B0507"}]',
             'dfwds': '[{"wdcode":"sj","valuecode":"2004-%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
-headers['Cookies'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=6mSmspVrNHPmsfECx-Uz-P58Ue5Yf8TxhzENT3BAB3JjIr8KbYqn' \
-                     '!1294272777; u=5 '
+headers['Cookie'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=17GrWn_4QlmhKwdwo3ffZyJ76pR54oBiWMZELhpFhPplVcNbm6PB' \
+                    '!2063508790; u=6; experience=show '
 
 
 def main():
