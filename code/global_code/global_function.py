@@ -31,3 +31,26 @@ def out_put(df, out_path, sector):
               encoding='utf_8_sig')
     # 第二个放在外面当最新的用
     df.to_csv(os.path.join(out_path, '%s_result.csv' % sector), index=False, encoding='utf_8_sig')
+
+
+def get_cookie():
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from webdriver_manager.chrome import ChromeDriverManager
+
+    url = 'https://data.stats.gov.cn/easyquery.htm'
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    options.add_argument('--ignore-ssl-errors=yes')  # 这两条会解决页面显示不安全问题
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    wd = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)  # 打开浏览器
+    wd.get(url)  # 打开要找cookie的网址
+    cookie = wd.get_cookies()  # 获取cookie
+    # 将cookie添加到header里
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                             'Chrome/104.0.0.0 Safari/537.36', 'Cookie': '%s=%s; %s=%s' % (
+        cookie[1]['name'], cookie[1]['value'], cookie[0]['name'], cookie[0]['value'])}
+    wd.quit()
+    return headers

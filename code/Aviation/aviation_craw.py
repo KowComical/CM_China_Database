@@ -109,18 +109,12 @@ def extract_pdf():
 
 
 def craw_gdp():
+    # 获取cookie
+    headers = af.get_cookie()
     url = 'https://data.stats.gov.cn/easyquery.htm'
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/104.0.0.0 Safari/537.36',
-        'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0102'}
-
     keyvalue = {'m': 'QueryData', 'dbcode': 'fsjd', 'rowcode': 'reg', 'colcode': 'sj',
                 'wds': '[{"wdcode":"zb","valuecode":"A010101"}]',
                 'dfwds': '[{"wdcode":"sj","valuecode":"%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
-    headers['Cookie'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=17GrWn_4QlmhKwdwo3ffZyJ76pR54oBiWMZELhpFhPplVcNbm6PB' \
-                        '!2063508790; u=6; experience=show '
 
     # 提取数据
     r = requests.get(url, params=keyvalue, headers=headers, verify=False, timeout=20)
