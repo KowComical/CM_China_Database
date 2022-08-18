@@ -16,16 +16,16 @@ sys.dont_write_bytecode = True
 # except Exception as e:
 #     print(e)
 
-try:
-    sys.path.append('./code/Aviation/')
-    print('#######################')
-    print('Begin process Aviation...')
-    import aviation as av
-
-    av.main()
-    print('Finish process Aviation...')
-except Exception as e:
-    print(e)
+# try:
+#     sys.path.append('./code/Aviation/')
+#     print('#######################')
+#     print('Begin process Aviation...')
+#     import aviation as av
+#
+#     av.main()
+#     print('Finish process Aviation...')
+# except Exception as e:
+#     print(e)
 
 # try:
 #     sys.path.append('./code/Ground_Transport/')
@@ -49,16 +49,16 @@ except Exception as e:
 # except Exception as e:
 #     print(e)
 #
-# try:
-#     sys.path.append('./code/Power/')
-#     print('#######################')
-#     print('Begin process Power...')
-#     import power as p
-#
-#     p.main()
-#     print('Finish process Power...')
-# except Exception as e:
-#     print(e)
+try:
+    sys.path.append('./code/Power/')
+    print('#######################')
+    print('Begin process Power...')
+    import power as p
+
+    p.main()
+    print('Finish process Power...')
+except Exception as e:
+    print(e)
 #
 # try:
 #     sys.path.append('./code/Residential/')

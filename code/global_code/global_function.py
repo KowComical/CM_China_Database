@@ -33,12 +33,11 @@ def out_put(df, out_path, sector):
     df.to_csv(os.path.join(out_path, '%s_result.csv' % sector), index=False, encoding='utf_8_sig')
 
 
-def get_cookie():
+def get_cookie(url):
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service
     from webdriver_manager.chrome import ChromeDriverManager
 
-    url = 'https://data.stats.gov.cn/easyquery.htm'
     options = webdriver.ChromeOptions()
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     options.add_argument('--ignore-ssl-errors=yes')  # 这两条会解决页面显示不安全问题
@@ -51,6 +50,7 @@ def get_cookie():
     # 将cookie添加到header里
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                              'Chrome/104.0.0.0 Safari/537.36', 'Cookie': '%s=%s; %s=%s' % (
-        cookie[1]['name'], cookie[1]['value'], cookie[0]['name'], cookie[0]['value'])}
+        cookie[1]['name'], cookie[1]['value'], cookie[0]['name'], cookie[0]['value']), 'Host': 'data.stats.gov.cn',
+               'Referer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0101'}
     wd.quit()
     return headers

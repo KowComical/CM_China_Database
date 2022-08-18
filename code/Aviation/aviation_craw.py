@@ -4,6 +4,8 @@ import pandas as pd
 import os
 import requests
 
+# req.encoding=req.apparent_encoding 乱码解码
+
 requests.packages.urllib3.disable_warnings()
 import pdfplumber
 from datetime import datetime

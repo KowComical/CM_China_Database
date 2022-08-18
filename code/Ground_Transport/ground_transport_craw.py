@@ -8,6 +8,8 @@ from sklearn.linear_model import LinearRegression
 import sys
 
 sys.dont_write_bytecode = True
+sys.path.append('./code/')
+from global_code import global_function as af
 
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Ground_Transport', 'raw')
@@ -18,15 +20,10 @@ end_year = datetime.now().strftime('%Y')
 
 url = 'https://data.stats.gov.cn/easyquery.htm'
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 '
-                  'Safari/537.36',
-    'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0102'}
+headers = af.get_cookie(url)
 keyvalue = {'m': 'QueryData', 'dbcode': 'fsnd', 'rowcode': 'reg', 'colcode': 'sj',
             'wds': '[{"wdcode":"zb","valuecode":"A0G0701"}]',
             'dfwds': '[{"wdcode":"sj","valuecode":"1980-%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
-headers['Cookie'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=17GrWn_4QlmhKwdwo3ffZyJ76pR54oBiWMZELhpFhPplVcNbm6PB' \
-                    '!2063508790; u=6; experience=show '
 
 
 def main():
@@ -34,7 +31,8 @@ def main():
 
 
 def craw():
-    r = requests.get(url, params=keyvalue, headers=headers, timeout=20)
+
+    r = requests.get(url, params=keyvalue, headers=headers, timeout=20, verify=False)
     name = []
     date = []
     data = []

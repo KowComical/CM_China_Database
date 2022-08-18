@@ -7,6 +7,12 @@ import time
 import requests
 
 requests.packages.urllib3.disable_warnings()
+import sys
+
+sys.dont_write_bytecode = True
+requests.packages.urllib3.disable_warnings()
+sys.path.append('./code/')
+from global_code import global_function as af
 
 # 参数
 file_path = './data/Industry/craw/'
@@ -28,12 +34,7 @@ def craw():
 
     url = 'https://data.stats.gov.cn/easyquery.htm'
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/104.0.0.0 Safari/537.36',
-        'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=A01',
-        'Cookie': '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=17GrWn_4QlmhKwdwo3ffZyJ76pR54oBiWMZELhpFhPplVcNbm6PB'
-                  '!2063508790; u=6; experience=show'}
+    headers = af.get_cookie(url)
     code_list = code['code'].tolist()
     name_list = code['cname'].tolist()
     for j, k in zip(code_list, name_list):
