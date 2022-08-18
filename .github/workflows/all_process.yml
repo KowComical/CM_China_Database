@@ -1,8 +1,8 @@
 name: all_process
 'on':
-#  schedule:
-  #  - cron: '0 22 * * *'
-  workflow_dispatch: # 添加一个可以手动运行的按钮
+   schedule:
+    - cron: '0 22 * * *'
+   workflow_dispatch: # 添加一个可以手动运行的按钮
 jobs:
   process_bot:
     runs-on: ubuntu-latest
