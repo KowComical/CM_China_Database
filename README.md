@@ -1,6 +1,10 @@
 [![all_process](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml)
 # CM_China_Database
 
+ip莫名其妙被ban了 常规的requests爬取方式无法进行
+想了一个绝妙的idea修复了爬虫
+在这里表扬下自己
+
 ### Aviation
 整理完 ratio 按照各省GDP比例拆分到省的 GDP数据会延后一点 缺失的会按照前一年的比例填充
 
