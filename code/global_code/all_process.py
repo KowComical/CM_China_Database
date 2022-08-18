@@ -48,7 +48,7 @@ sys.dont_write_bytecode = True
 #     print('Finish process Industry...')
 # except Exception as e:
 #     print(e)
-#
+
 try:
     sys.path.append('./code/Power/')
     print('#######################')
