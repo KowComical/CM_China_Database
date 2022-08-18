@@ -4,13 +4,9 @@ import pandas as pd
 import os
 import requests
 
-# req.encoding=req.apparent_encoding 乱码解码
-
-requests.packages.urllib3.disable_warnings()
 import pdfplumber
 from datetime import datetime
 import numpy as np
-import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -27,13 +23,14 @@ file_path = os.path.join(aviation_path, 'craw')
 out_path = os.path.join(file_path, '生产资料')
 out_path_gdp = os.path.join(file_path, 'GDP.csv')
 raw_path = os.path.join(aviation_path, 'raw')
-end_year = datetime.now().strftime('%Y')
 
 # 设置备注
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
+options.add_argument('--ignore-ssl-errors=yes')  # 这两条会解决页面显示不安全问题
+options.add_argument('--ignore-certificate-errors')
 
 
 def main():
@@ -80,12 +77,13 @@ def craw_zhibiao():
             r = requests.get(p)
             with open(os.path.join(out_path, '%s.pdf' % n), 'wb') as f:
                 f.write(r.content)
+    wd.quit()
 
 
 def extract_pdf():
     # 转换整理的pdf
     file_name = af.search_file(out_path)
-    name = re.compile(r'生产资料/(?P<name>.*?)航空生产资料', re.S)
+    name = re.compile(r'生产资料\\(?P<name>.*?)航空生产资料', re.S)
     df_result = pd.DataFrame()
     for f in file_name:
         pdf = pdfplumber.open(f)
@@ -111,29 +109,10 @@ def extract_pdf():
 
 
 def craw_gdp():
-    # 获取cookie
-    headers = af.get_cookie()
-    url = 'https://data.stats.gov.cn/easyquery.htm'
-    keyvalue = {'m': 'QueryData', 'dbcode': 'fsjd', 'rowcode': 'reg', 'colcode': 'sj',
-                'wds': '[{"wdcode":"zb","valuecode":"A010101"}]',
-                'dfwds': '[{"wdcode":"sj","valuecode":"%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
-
-    # 提取数据
-    r = requests.get(url, params=keyvalue, headers=headers, verify=False, timeout=20)
-    name = []
-    date = []
-    data = []
-    city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
-    time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
-    for c in city_list:
-        for t in time_list:
-            name.append(c)
-            date.append(t)
-    data_list = r.json()['returndata']['datanodes']
-    for i in range(len(data_list)):
-        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
-    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
-                           pd.DataFrame(data, columns=['data'])], axis=1)
+    # 参数
+    end_year = datetime.now().strftime('%Y')
+    # 爬取
+    df_result = af.get_json('fsjd', 'A010101', end_year)
     # 读取历史数据
     df_history = pd.read_csv(out_path_gdp)
     # 合并结果并删除重复值

@@ -1,32 +1,18 @@
-import requests
-import os
-from datetime import datetime
-import time
 import pandas as pd
+import os
 from sklearn.linear_model import LinearRegression
+from datetime import datetime
 
 import sys
 
 sys.dont_write_bytecode = True
+sys.path.append('./code/')
+from global_code import global_function as af
 
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Residential', 'raw')
 craw_path = os.path.join(global_path, 'Residential', 'craw')
 useful_path = os.path.join(global_path, 'global_data')
-
-end_year = datetime.now().strftime('%Y')
-
-url = 'https://data.stats.gov.cn/easyquery.htm'
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 '
-                  'Safari/537.36',
-    'Host': 'data.stats.gov.cn', 'Refer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0102'}
-keyvalue = {'m': 'QueryData', 'dbcode': 'fsnd', 'rowcode': 'reg', 'colcode': 'sj',
-            'wds': '[{"wdcode":"zb","valuecode":"A0B0507"}]',
-            'dfwds': '[{"wdcode":"sj","valuecode":"2004-%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
-headers['Cookie'] = '_trs_uv=l64kf5g2_6_ajxr; JSESSIONID=17GrWn_4QlmhKwdwo3ffZyJ76pR54oBiWMZELhpFhPplVcNbm6PB' \
-                    '!2063508790; u=6; experience=show '
 
 
 def main():
@@ -34,22 +20,11 @@ def main():
 
 
 def craw():
-    # 提取数据
-    r = requests.get(url, params=keyvalue, headers=headers, timeout=20)
-    name = []
-    date = []
-    data = []
-    city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
-    time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
-    for c in city_list:
-        for t in time_list:
-            name.append(c)
-            date.append(t)
-    data_list = r.json()['returndata']['datanodes']
-    for i in range(len(data_list)):
-        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
-    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
-                           pd.DataFrame(data, columns=['data'])], axis=1)
+    # 设置爬取范围
+    end_year = datetime.now().strftime('%Y')
+    date_range = '2004-%s' % end_year
+    # 爬取数据
+    df_result = af.get_json('fsnd', 'A0B0507', date_range)
     # 输出raw数据
     df_result.to_csv(os.path.join(craw_path, '供热面积.csv'), index=False, encoding='utf_8_sig')
     # 继续清理

@@ -1,9 +1,9 @@
-import requests
 import os
 from datetime import datetime
-import time
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from selenium import webdriver
+
 
 import sys
 
@@ -16,14 +16,12 @@ raw_path = os.path.join(global_path, 'Ground_Transport', 'raw')
 craw_path = os.path.join(global_path, 'Ground_Transport', 'craw')
 useful_path = os.path.join(global_path, 'global_data')
 
-end_year = datetime.now().strftime('%Y')
-
-url = 'https://data.stats.gov.cn/easyquery.htm'
-
-headers = af.get_cookie(url)
-keyvalue = {'m': 'QueryData', 'dbcode': 'fsnd', 'rowcode': 'reg', 'colcode': 'sj',
-            'wds': '[{"wdcode":"zb","valuecode":"A0G0701"}]',
-            'dfwds': '[{"wdcode":"sj","valuecode":"1980-%s"}]' % end_year, 'k1': str(int(time.time() * 1000))}
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+options.add_argument('--ignore-ssl-errors=yes')  # 这两条会解决页面显示不安全问题
+options.add_argument('--ignore-certificate-errors')
 
 
 def main():
@@ -31,22 +29,11 @@ def main():
 
 
 def craw():
-
-    r = requests.get(url, params=keyvalue, headers=headers, timeout=20, verify=False)
-    name = []
-    date = []
-    data = []
-    city_list = pd.json_normalize(r.json()['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
-    time_list = pd.json_normalize(r.json()['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
-    for c in city_list:
-        for t in time_list:
-            name.append(c)
-            date.append(t)
-    data_list = r.json()['returndata']['datanodes']
-    for i in range(len(data_list)):
-        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
-    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
-                           pd.DataFrame(data, columns=['data'])], axis=1)
+    # 参数
+    end_year = datetime.now().strftime('%Y')
+    date_range = '1980-%s' % end_year
+    # 爬取
+    df_result = af.get_json('fsnd', 'A0G0701', date_range)
 
     # 线性填充缺失的汽车保有量
     df_result = pd.pivot_table(df_result, index='name', values='data', columns='date').reset_index()

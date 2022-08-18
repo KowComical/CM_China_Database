@@ -54,3 +54,52 @@ def get_cookie(url):
                'Referer': 'https://data.stats.gov.cn/easyquery.htm?cn=E0101'}
     wd.quit()
     return headers
+
+
+def get_json(dv, vc, dr):
+    import re
+    import time
+    import json
+    import pandas as pd
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from webdriver_manager.chrome import ChromeDriverManager
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    options.add_argument('--ignore-ssl-errors=yes')  # 这两条会解决页面显示不安全问题
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+
+    dbcode_value = dv
+    wds_value = '[{"wdcode":"zb","valuecode":"%s"}]' % vc
+    dfwds_value = '[{"wdcode":"sj","valuecode": "%s"}]' % dr
+    k1_value = str(int(time.time() * 1000))
+    url = 'https://data.stats.gov.cn/easyquery.htm?m=QueryData&dbcode=%s&rowcode=reg&colcode=sj&wds=%s&dfwds=%s' \
+          '&k1=%s&h=1' % (dbcode_value, wds_value, dfwds_value, k1_value)
+    # 开始爬
+    wd = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)  # 打开浏览器
+    wd.get(url)
+    # 得到网页源码
+    content = wd.page_source
+    # 提取有效数据
+    json_data = re.compile(r'pre-wrap;">(?P<data>.*?)</pre>', re.S)
+    result = json.loads(json_data.findall(content)[0])
+    # 提取数据
+    name = []
+    date = []
+    data = []
+    city_list = pd.json_normalize(result['returndata']['wdnodes'][1], record_path='nodes')['name'].tolist()
+    time_list = pd.json_normalize(result['returndata']['wdnodes'][2], record_path='nodes')['name'].tolist()
+    for c in city_list:
+        for t in time_list:
+            name.append(c)
+            date.append(t)
+    data_list = result['returndata']['datanodes']
+    for i in range(len(data_list)):
+        data.append(pd.DataFrame([data_list[i]['data']])['data'].tolist()[0])
+    df_result = pd.concat([pd.DataFrame(name, columns=['name']), pd.DataFrame(date, columns=['date']),
+                           pd.DataFrame(data, columns=['data'])], axis=1)
+    wd.quit()
+    return df_result
