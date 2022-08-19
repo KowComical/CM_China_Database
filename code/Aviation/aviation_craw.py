@@ -83,7 +83,7 @@ def craw_zhibiao():
 def extract_pdf():
     # 转换整理的pdf
     file_name = af.search_file(out_path)
-    name = re.compile(r'生产资料\\(?P<name>.*?)航空生产资料', re.S)
+    name = re.compile(r'生产资料/(?P<name>.*?)航空生产资料', re.S)
     df_result = pd.DataFrame()
     for f in file_name:
         pdf = pdfplumber.open(f)
