@@ -64,7 +64,7 @@ def craw_zhibiao():
     # 读取history文件
     df_history = pd.read_csv(os.path.join(file_path, '全生产资料信息.csv'))
     df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
-    df_result = df_result[~df_result.duplicated()].reset_index(drop=True)
+    df_result = df_result[~df_result.duplicated(['url'])].reset_index(drop=True)
     df_result.to_csv(os.path.join(file_path, '全生产资料信息.csv'), index=False, encoding='utf_8_sig')
 
     # 找到已下载的
