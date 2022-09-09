@@ -24,7 +24,7 @@ def process():
 
     df_all = pd.concat([pd.read_csv(f) for f in file_name]).reset_index(drop=True)
     df_all['date'] = pd.to_datetime(df_all['date'])
-    df_all = df_all[df_all['date'] <= '2022-05-31'].reset_index(drop=True)  # 这里以后要修改
+    df_all = df_all[df_all['date'] <= '2022-07-31'].reset_index(drop=True)  # 这里以后要修改
     time_stamp = []  # 将当地时间转换为时间戳
     for d in df_all['date'].tolist():
         time_stamp.append(time.mktime(d.timetuple()))
