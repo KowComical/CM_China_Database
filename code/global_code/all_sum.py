@@ -24,6 +24,8 @@ def process():
 
     df_all = pd.concat([pd.read_csv(f) for f in file_name]).reset_index(drop=True)
     df_all['date'] = pd.to_datetime(df_all['date'])
+    # 获取所有部门的更新最大日期
+    af.update_date(df_all)
     # 取日期最大公约数
     max_date = max(df_all['date'])
     sector_list = df_all['sector'].unique()

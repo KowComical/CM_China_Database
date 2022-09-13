@@ -103,3 +103,37 @@ def get_json(dv, vc, dr):
                            pd.DataFrame(data, columns=['data'])], axis=1)
     wd.quit()
     return df_result
+
+
+def get_size(txt, font):
+    from PIL import Image
+    from PIL import ImageDraw
+
+    testImg = Image.new('RGB', (1, 1))
+    testDraw = ImageDraw.Draw(testImg)
+    return testDraw.textsize(txt, font)
+
+
+def update_date(df):
+    import os
+    from PIL import Image
+    from PIL import ImageDraw
+    from PIL import ImageFont
+
+    image_path = './image/updated/'
+
+    # 参数
+    fontname = os.path.join(image_path, 'PingFang-Jian-ChangGuiTi-2.ttf')
+    fontsize = 20
+    colorText = "black"
+    colorBackground = "white"
+    font = ImageFont.truetype(fontname, fontsize)
+    # 找到各部门的最大更新日期
+    sector_list = df['sector'].unique()
+    for s in sector_list:
+        max_date = df[df['sector'] == s]['date'].max().strftime('%Y-%m-%d')
+        width, height = get_size(max_date, font)
+        img = Image.new('RGB', (width + 20, height + 20), colorBackground)
+        d = ImageDraw.Draw(img)
+        d.text((10, height / 4), max_date, fill=colorText, font=font)
+        img.save(os.path.join(image_path, '%s.png' % s))
