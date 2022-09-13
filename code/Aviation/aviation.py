@@ -1,6 +1,9 @@
 import pandas as pd
 import os
 import aviation_craw as g
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 import sys
 
 sys.dont_write_bytecode = True
@@ -32,9 +35,26 @@ def process():
     df_result = pd.merge(df_daily, df_ratio)
     df_result['value'] = df_result['value'] * df_result['ratio']
 
+    # 按照每日占比将月份拆分为日
+    date_list = df_result['date'].unique()
+    state_list = df_result['拼音'].unique()
+    df_new = pd.DataFrame()
+    for d in date_list:
+        for s in state_list:
+            temp = df_result[(df_result['date'] == d) & (df_result['拼音'] == s)].reset_index(drop=True)
+            start_date = temp['date'][0].strftime('%Y-%m-%d')  # 起时日期
+            end_date = (datetime.strptime(start_date, "%Y-%m-%d") + relativedelta(months=1) + timedelta(
+                days=-1)).strftime('%Y-%m-%d')  # 结束日期
+            # 当月范围天数
+            date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+            df_temp = pd.DataFrame(date_range, columns=['date'])
+            df_temp['value'] = temp['value'][0] / len(date_range)  # 按天数平分
+            df_temp['state'] = s
+            df_new = pd.concat([df_new, df_temp]).reset_index(drop=True)
+
     # 输出
-    df_result = df_result.rename(columns={'拼音': 'state'})[['date', 'state', 'value']]
-    af.out_put(df_result, out_path, 'Aviation')
+    df_new = df_new.rename(columns={'拼音': 'state'})[['date', 'state', 'value']]
+    af.out_put(df_new, out_path, 'Aviation')
 
 
 if __name__ == '__main__':

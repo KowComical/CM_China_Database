@@ -24,7 +24,16 @@ def process():
 
     df_all = pd.concat([pd.read_csv(f) for f in file_name]).reset_index(drop=True)
     df_all['date'] = pd.to_datetime(df_all['date'])
-    df_all = df_all[df_all['date'] <= '2022-07-31'].reset_index(drop=True)  # 这里以后要修改
+    # 取日期最大公约数
+    max_date = max(df_all['date'])
+    sector_list = df_all['sector'].unique()
+    for c in sector_list:
+        temp = df_all[df_all['sector'] == c].reset_index()
+        temp_date = max(temp['date'])
+        if temp_date < max_date:  # 如果当前sector小于之前sector的日期最大值 则替换
+            max_date = temp_date
+    df_all = df_all[df_all['date'] <= max_date].reset_index(drop=True)
+
     time_stamp = []  # 将当地时间转换为时间戳
     for d in df_all['date'].tolist():
         time_stamp.append(time.mktime(d.timetuple()))
