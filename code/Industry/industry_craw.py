@@ -42,7 +42,7 @@ def craw():
 
     for j, k in zip(code_list, name_list):
         df_result = af.get_json('fsyd', j, end_year)
-        df_result['ty'] = k
+        df_result['type'] = k
         # 将结果储存到历史数据里
         df_history = pd.concat([df_history, df_result]).reset_index(drop=True)
     # 输出结果
