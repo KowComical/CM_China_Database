@@ -58,12 +58,14 @@ def craw_zhibiao():
         '主要生产指标统计', '').str.replace(
         '主要运输生产指标统计', '').str.replace(
         '民航', '').str.replace('4国', '').str.replace('份', '').str.replace(' ', '').str.replace('"', '')
-    df_result['date'] = pd.to_datetime(df_result['name'], format='%Y年%m月').dt.strftime('%Y-%m')
+    df_result['date'] = pd.to_datetime(df_result['name'], format='%Y年%m月').dt.strftime('%Y-%m-%d')
     df_result['name'] = pd.to_datetime(df_result['date']).dt.strftime('%Y年%m月航空生产资料')
 
     # 读取history文件
     df_history = pd.read_csv(os.path.join(file_path, '全生产资料信息.csv'))
+    df_history['date'] = pd.to_datetime(df_history['date'])  # 转换一下日期格式 总有问题
     df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
+    df_result['date'] = pd.to_datetime(df_result['date'])
     df_result = df_result[~df_result.duplicated(['url'])].reset_index(drop=True)
     df_result.to_csv(os.path.join(file_path, '全生产资料信息.csv'), index=False, encoding='utf_8_sig')
 
