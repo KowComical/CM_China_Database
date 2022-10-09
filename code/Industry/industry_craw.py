@@ -41,10 +41,13 @@ def craw():
     end_year = datetime.now().strftime('%Y')
 
     for j, k in zip(code_list, name_list):
-        df_result = af.get_json('fsyd', j, end_year)
-        df_result['type'] = k
-        # 将结果储存到历史数据里
-        df_history = pd.concat([df_history, df_result]).reset_index(drop=True)
+        try:
+            df_result = af.get_json('fsyd', j, end_year)
+            df_result['type'] = k
+            # 将结果储存到历史数据里
+            df_history = pd.concat([df_history, df_result]).reset_index(drop=True)
+        except:
+            pass
     # 输出结果
     df_history = df_history[~df_history.duplicated()].reset_index(drop=True)  # 删除可能存在的重复值
     df_history = df_history.groupby(['name', 'date', 'type']).mean().reset_index()

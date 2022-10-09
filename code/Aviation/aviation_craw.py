@@ -50,9 +50,9 @@ def craw_zhibiao():
     html = wd.page_source
 
     # 提取有效信息
-    name = re.compile(r'<div style="float: right">.*?<a record="false" href="(?P<name>.*?)"'
-                      r'.*?class="fontlan" title="(?P<title>.*?).pdf"', re.S)
-    df_result = pd.DataFrame(name.findall(html), columns=['url', 'name'])
+    name_html = re.compile(r'<div style="float: right">.*?<a record="false" href="(?P<name>.*?)"'
+                           r'.*?class="fontlan" title="(?P<title>.*?).pdf"', re.S)
+    df_result = pd.DataFrame(name_html.findall(html), columns=['url', 'name'])
     df_result['name'] = df_result['name'].str.replace(
         '中国民航', '').str.replace(
         '主要生产指标统计', '').str.replace(
@@ -92,8 +92,8 @@ def extract_pdf():
         dfs = pdf.pages[0].extract_tables()
         temp = pd.DataFrame(dfs[0]).fillna(np.nan).replace('', np.nan).replace('\n', '')
         if '旅客吞吐量' in temp[0].tolist():  # 如果有旅客吞吐量
-            temp = temp.dropna(axis=0, how='all', thresh=2).reset_index(drop=True)  # 非空值小于2时删除行
-            temp = temp.dropna(axis=1, how='all', thresh=4)
+            # temp = temp.dropna(axis=0, how='all', thresh=2).reset_index(drop=True)  # 非空值小于2时删除行
+            # temp = temp.dropna(axis=1, how='all', thresh=4)
             # 提取有效信息范围
             start_index = temp[temp[0] == '旅客吞吐量'].index.tolist()[0]
             temp = temp.iloc[start_index:start_index + 5, :3].reset_index(drop=True)
