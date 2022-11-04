@@ -9,10 +9,10 @@ jobs:
     steps:
       - name: check_code
         uses: actions/checkout@master
-      - name: set up Python 3.8
-        uses: actions/setup-Python@v2
+      - name: set up Python 3.9
+        uses: actions/setup-Python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: install requirements
         run: |
           python -m pip install --upgrade pip
@@ -43,10 +43,10 @@ jobs:
     steps:
       - name: check_code
         uses: actions/checkout@master
-      - name: set up Python 3.8
-        uses: actions/setup-Python@v2
+      - name: set up Python 3.9
+        uses: actions/setup-Python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: install requirements
         run: |
           python -m pip install --upgrade pip
