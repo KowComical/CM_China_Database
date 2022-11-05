@@ -1,0 +1,23 @@
+name: push_to_database
+'on':
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch: # 添加一个可以手动运行的按钮
+jobs:
+  push_to_database_power: # 推到CM公共库
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: push to another git
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_file: 'data/global_data/all_data.csv'
+        destination_repo: 'CarbonMonitorData/CM_DataBase'
+        destination_folder: 'CM_China/all_sector'
+        user_email: 'xuanren1992@yahoo.com'
+        user_name: 'KowComical'
+        commit_message: 'Daily China-Province Emission data Updated from CM_China_Database'
