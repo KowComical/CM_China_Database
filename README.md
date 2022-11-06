@@ -1,4 +1,5 @@
 [![all_process](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml)
+[![push_to_database](https://github.com/KowComical/CM_China_Database/actions/workflows/push_to_others.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/push_to_others.yml)
 
 #### 目前更新是一个季度的延迟
 
