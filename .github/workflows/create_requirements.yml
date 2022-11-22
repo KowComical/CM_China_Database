@@ -1,6 +1,8 @@
 name: create_requirements
-on: 
-  workflow_dispatch: # 添加一个可以手动运行的按钮
+'on':
+   schedule:
+    - cron: '0 20 */3 * *'
+   workflow_dispatch: # 添加一个可以手动运行的按钮
 jobs:
   build:
     runs-on: ubuntu-latest
