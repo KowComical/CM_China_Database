@@ -33,7 +33,7 @@ name = re.compile(r'test/data/(?P<name>.*?).csv', re.S)
 all_file = [int(name.findall(f)[0]) for f in file_name]
 print(all_file)
 # city_country = pd.DataFrame()
-for i in range(3000, len(kow)):
+for i in range(4500, len(kow)):
     if i not in all_file:
         lat = float(kow[i].split(',')[0])
         lon = float(kow[i].split(',')[1])
