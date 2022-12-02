@@ -24,7 +24,6 @@ def search_file(file_path):
 
 
 file_path = './code/test/data/'
-
 kow = pd.read_csv(os.path.join(file_path, 'kow.csv'))['0'].tolist()
 
 file_name = search_file(file_path)
@@ -37,7 +36,7 @@ for i in range(4500, len(kow)):
     if i not in all_file:
         lat = float(kow[i].split(',')[0])
         lon = float(kow[i].split(',')[1])
-        if np.isnan(lat) is False or np.isnan(lon) is False:
+        if not np.isnan(lat) or not np.isnan(lon):
             url = f'https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json&accept-language=en&zoom=10'
             result = requests.get(url=url, headers=headers, timeout=60)
             temp = pd.DataFrame([result.json()['address']])
