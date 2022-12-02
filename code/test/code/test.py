@@ -44,5 +44,5 @@ for i in range(3000, len(kow)):
             temp['lat'] = lat
             temp['lon'] = lon
             temp.to_csv(os.path.join(file_path, '%s.csv' % i), index=False, encoding='utf_8_sig')
-            time.sleep(3)
+            time.sleep(2)
     # city_country = pd.concat([city_country,temp]).reset_index(drop=True)
