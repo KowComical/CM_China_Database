@@ -55,7 +55,9 @@ def get_cookie(url):
     wd.quit()
     return headers
 
-
+# 不知道为啥 但是rowcode这个字段很重要
+# 现在是rowcode=reg
+# 有些情况要等于zb
 def get_json(dv, vc, dr):
     import re
     import time
