@@ -17,7 +17,7 @@ jobs:
       with:
         source_file: 'data/global_data/all_data.csv'
         destination_repo: 'CarbonMonitorData/CM_DataBase'
-        destination_folder: 'CM_China'
+        destination_folder: '/data/CM_China'
         user_email: 'xuanren1992@yahoo.com'
         user_name: 'KowComical'
         commit_message: 'Daily China-Province Emission data Updated from CM_China_Database'
