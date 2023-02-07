@@ -42,8 +42,6 @@ def draw_pic():
     num = [i for i in range(len(pro_list))]
 
     for category_name, color_choose in zip(sector_list, palette):
-        if category_name == 'Ground Transport':
-            category_name = 'Ground_Transport'
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
@@ -78,7 +76,8 @@ def draw_pic():
                                                        label='_nolegend_')
             plt.fill_between(df_max['month_date'], df_max['max'], df_min['min'], alpha=0.5, color='tab:grey')
             df_2022.set_index('month_date')[category_name].plot(color=color_choose, linewidth=18)
-
+            if category_name == 'Ground Transport':
+                category_name = 'Ground_Transport'
             # add the custom ticks and labels
             plt.xticks(np.linspace(0, 365, 13), months)
             plt.xticks(size=80)
@@ -109,12 +108,12 @@ def draw_pic():
         out_path_yearly = af.create_folder(out_path_type, str(current_year))
         out_path_monthly = af.create_folder(out_path_yearly, '%2.2i' % int(current_month))
 
-        plt.savefig(os.path.join(out_path_monthly, '%s_generation_for_all_country_%s.svg' % (out_name, current_date)),
+        plt.savefig(os.path.join(out_path_monthly, '%s_emission_for_all_provinces_%s.svg' % (out_name, current_date)),
                     format='svg', bbox_inches='tight')
-        plt.savefig(os.path.join(out_path, '%s_generation_for_all_country.svg' % out_name), format='svg',
+        plt.savefig(os.path.join(out_path, '%s_emission_for_all_provinces.svg' % out_name), format='svg',
                     bbox_inches='tight')
         # readme也需要一个
-        plt.savefig(os.path.join(out_path, '%s_generation_for_all_country.svg' % out_name), format='svg',
+        plt.savefig(os.path.join(out_path, '%s_emission_for_all_provinces.svg' % out_name), format='svg',
                     bbox_inches='tight')
 
 
