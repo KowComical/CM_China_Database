@@ -1,9 +1,12 @@
 import pandas as pd
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import global_function as af
+
 from datetime import datetime
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+import global_function as af
 
 out_path = './image/'
 file_path = './data/global_data/'
@@ -26,6 +29,9 @@ def draw_pic():
     df['month_date'] = df['date'].dt.strftime('%m-%d')
     # 开始画图
     # 参数
+    # 颜色参数
+    palette = sns.color_palette("husl", (len(sector_list)))
+
     current_date = datetime.now().strftime('%Y%m%d')
     current_year = int(datetime.now().strftime('%Y'))
     current_month = datetime.now().strftime('%m')
@@ -34,7 +40,7 @@ def draw_pic():
     pro_list = df['state'].unique()
     num = [i for i in range(len(pro_list))]
 
-    for category_name in sector_list:
+    for category_name, color_choose in zip(sector_list, palette):
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
@@ -68,7 +74,7 @@ def draw_pic():
             df_min.set_index('month_date')['min'].plot(ax=ax, color='tab:grey', linewidth=10, alpha=0,
                                                        label='_nolegend_')
             plt.fill_between(df_max['month_date'], df_max['max'], df_min['min'], alpha=0.5, color='tab:grey')
-            df_2022.set_index('month_date')[category_name].plot(color='tab:red', linewidth=10)
+            df_2022.set_index('month_date')[category_name].plot(color=color_choose, linewidth=10)
 
             # add the custom ticks and labels
             plt.xticks(np.linspace(0, 365, 13), months)
