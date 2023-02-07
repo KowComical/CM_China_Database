@@ -43,6 +43,8 @@ def draw_pic():
     for category_name, color_choose in zip(sector_list, palette):
         if category_name == 'Total':
             color_choose = 'tab:blue'
+        if category_name == 'Ground Transport':
+            category_name = 'Ground_Transport'
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
@@ -93,9 +95,9 @@ def draw_pic():
                 ax.spines[axis].set_color('black')  # change color
 
         fig.text(0.5, 1.05, '%s Emission for all provinces' % category_name, ha='center', va='center',
-                 size=150)  # 在总图位置添加个标签
+                 size=180)  # 在总图位置添加个标签
         # lines, labels = fig.axes[-1].get_legend_handles_labels()
-        legend = fig.legend(labels=['historical ranges (2019~2021)', '2022'], loc='lower center', prop={'size': 120},
+        legend = fig.legend(labels=['historical ranges (2019~2021)', '2022'], loc='lower center', prop={'size': 150},
                             ncol=5,
                             shadow=True, fancybox=True, frameon=False, bbox_to_anchor=(0.47, 0.05))  # 总图的legend
 
