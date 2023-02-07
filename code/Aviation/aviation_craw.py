@@ -131,7 +131,29 @@ def gdp_raw():
     for q, d in zip(q_list, num_list):
         df_gdp['date'] = df_gdp['date'].str.replace('年%s' % q, '-%s' % d)
 
-        # 将季度分成月份
+    # 填充缺失值
+    df_gdp = df_gdp.sort_values('date').replace(0, np.nan)
+    pro_list = df_gdp['name'].unique()
+    df_replaced = pd.DataFrame()
+    for pro in pro_list:
+        temp = df_gdp[df_gdp['name'] == pro].reset_index(drop=True)
+        null = temp[temp.isna().any(axis=1)]
+        null_index = null.index.tolist()
+        for n in null_index:
+            # 找到缺失的年份 并用前两年的相同季度的增幅来填充今年的
+            null_year = pd.to_datetime(null['date']).dt.year.tolist()[0]
+            null_month = pd.to_datetime(null['date']).dt.month.tolist()[0]
+            per_year = temp[temp['date'] == '%s-%2.2i' % (null_year - 1, null_month)]['data'].tolist()[0]
+            per_per_year = temp[temp['date'] == '%s-%2.2i' % (null_year - 2, null_month)]['data'].tolist()[0]
+            ratio = per_year / per_per_year
+            null_value = per_year * ratio
+            # 填充
+            temp.loc[n, 'data'] = null_value
+        df_replaced = pd.concat([df_replaced, temp]).reset_index(drop=True)
+
+    df_gdp = df_replaced.copy()
+
+    # 将季度分成月份
     province_list = df_gdp['name'].unique()
     df_all = pd.DataFrame()
     for p in province_list:
