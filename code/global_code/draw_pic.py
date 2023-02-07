@@ -22,13 +22,14 @@ def draw_pic():
     df_sum = df.groupby(['state', 'date']).sum(numeric_only=True).reset_index()
     df_sum['sector'] = 'Total'
     df = pd.concat([df, df_sum]).reset_index(drop=True)
-    sector_list = df['sector'].unique()
+
     # 列转行
     df = pd.pivot_table(df, index=['date', 'state'], values='value', columns='sector').reset_index()
     df['year'] = df['date'].dt.year
     df['month_date'] = df['date'].dt.strftime('%m-%d')
     # 开始画图
     # 参数
+    sector_list = ['Aviation', 'Total', 'Ground Transport', 'Power', 'Industry', 'Residential']
     palette = sns.color_palette("Set2", (len(sector_list)))
 
     current_date = datetime.now().strftime('%Y%m%d')
@@ -40,8 +41,6 @@ def draw_pic():
     num = [i for i in range(len(pro_list))]
 
     for category_name, color_choose in zip(sector_list, palette):
-        if category_name == 'Total':
-            color_choose = 'tab:blue'
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
