@@ -29,8 +29,7 @@ def draw_pic():
     df['month_date'] = df['date'].dt.strftime('%m-%d')
     # 开始画图
     # 参数
-    # 颜色参数
-    palette = sns.color_palette("husl", (len(sector_list)))
+    palette = sns.color_palette("Set2", (len(sector_list)))
 
     current_date = datetime.now().strftime('%Y%m%d')
     current_year = int(datetime.now().strftime('%Y'))
@@ -41,6 +40,8 @@ def draw_pic():
     num = [i for i in range(len(pro_list))]
 
     for category_name, color_choose in zip(sector_list, palette):
+        if category_name == 'Total':
+            color_choose = 'tab:blue'
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
