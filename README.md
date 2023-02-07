@@ -1,10 +1,14 @@
 [![all_process](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/all_process.yml)
 [![push_to_database](https://github.com/KowComical/CM_China_Database/actions/workflows/push_to_others.yml/badge.svg)](https://github.com/KowComical/CM_China_Database/actions/workflows/push_to_others.yml)
 
+### 分部门
+|Aviation|Ground_Transport|Industry|Power|Residential|
+|:-:|:-:|:-:|:-:|:-:|
+|**[`Aviation`](./image/Aviation_generation_for_all_country.svg)**|**[`Ground_Transport`](./image/Ground transport_generation_for_all_country.svg)**|**[`Industry`](./image/Industry_generation_for_all_country.svg)**|**[`Power`](./image/Power_generation_for_all_country.svg)**|**[`Residential`](./image/Residential_generation_for_all_country.svg)**|
+
 ### 所有部门
 <img src='./image/Total_generation_for_all_country.svg'>
 
-#### 目前更新是一个季度的延迟
 
 |Sector|Lastest_Date|Description|
 |:-:|:-:|:-:|
