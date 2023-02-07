@@ -27,10 +27,11 @@ def draw_pic():
     df = pd.pivot_table(df, index=['date', 'state'], values='value', columns='sector').reset_index()
     df['year'] = df['date'].dt.year
     df['month_date'] = df['date'].dt.strftime('%m-%d')
+    df = df.rename(columns={'Ground Transport': 'Ground_Transport'})
     # 开始画图
     # 参数
-    sector_list = ['Aviation', 'Total', 'Ground Transport', 'Power', 'Industry', 'Residential']
-    palette = ['tab:purple','tab:blue','tab:green','tab:orange','tab:red','tab:brown']
+    sector_list = ['Aviation', 'Total', 'Ground_Transport', 'Power', 'Industry', 'Residential']
+    palette = ['tab:purple', 'tab:blue', 'tab:green', 'tab:orange', 'tab:red', 'tab:brown']
     # palette = sns.color_palette("Set2", (len(sector_list)))
 
     current_date = datetime.now().strftime('%Y%m%d')
