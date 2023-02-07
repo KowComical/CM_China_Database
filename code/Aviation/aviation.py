@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-import aviation_craw as g
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -8,6 +7,7 @@ import sys
 
 sys.path.append('./code/')
 from global_code import global_function as af
+import Aviation.aviation_craw as g
 
 global_path = './data/'
 raw_path = os.path.join(global_path, 'Aviation', 'raw')

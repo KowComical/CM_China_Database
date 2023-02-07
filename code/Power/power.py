@@ -5,7 +5,6 @@ from sklearn.linear_model import LinearRegression
 
 import sys
 
-sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
 from Power import power_craw as pc

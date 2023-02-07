@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import sys
 
-sys.dont_write_bytecode = True
 sys.path.append('./code/')
 from global_code import global_function as af
 from Residential import residential_craw as rc
