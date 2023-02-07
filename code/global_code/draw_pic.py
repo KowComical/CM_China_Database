@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from datetime import datetime
-import seaborn as sns
+# import seaborn as sns
 import matplotlib.pyplot as plt
 
 import global_function as af
@@ -30,7 +30,8 @@ def draw_pic():
     # 开始画图
     # 参数
     sector_list = ['Aviation', 'Total', 'Ground Transport', 'Power', 'Industry', 'Residential']
-    palette = sns.color_palette("Set2", (len(sector_list)))
+    palette = ['tab:purple','tab:blue','tab:green','tab:orange','tab:red','tab:brown']
+    # palette = sns.color_palette("Set2", (len(sector_list)))
 
     current_date = datetime.now().strftime('%Y%m%d')
     current_year = int(datetime.now().strftime('%Y'))
@@ -41,8 +42,6 @@ def draw_pic():
     num = [i for i in range(len(pro_list))]
 
     for category_name, color_choose in zip(sector_list, palette):
-        if category_name == 'Total':
-            color_choose = 'tab:blue'
         if category_name == 'Ground Transport':
             category_name = 'Ground_Transport'
         out_name = category_name.capitalize()
