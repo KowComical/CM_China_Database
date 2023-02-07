@@ -4,7 +4,7 @@
 ### 分部门
 |Aviation|Ground_Transport|Industry|Power|Residential|
 |:-:|:-:|:-:|:-:|:-:|
-|**[`Aviation`](./image/Aviation_generation_for_all_country.svg)**|**[`Ground_Transport`](./image/Ground transport_generation_for_all_country.svg)**|**[`Industry`](./image/Industry_generation_for_all_country.svg)**|**[`Power`](./image/Power_generation_for_all_country.svg)**|**[`Residential`](./image/Residential_generation_for_all_country.svg)**|
+|**[`Aviation`](./image/Aviation_generation_for_all_country.svg)**|**[`Ground_Transport`](./image/Ground_Transport_generation_for_all_country.svg)**|**[`Industry`](./image/Industry_generation_for_all_country.svg)**|**[`Power`](./image/Power_generation_for_all_country.svg)**|**[`Residential`](./image/Residential_generation_for_all_country.svg)**|
 
 ### 所有部门
 <img src='./image/Total_generation_for_all_country.svg'>
