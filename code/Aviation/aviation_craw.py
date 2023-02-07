@@ -5,7 +5,6 @@ import os
 import requests
 
 import pdfplumber
-from datetime import datetime
 import numpy as np
 
 from selenium import webdriver
@@ -111,10 +110,8 @@ def extract_pdf():
 
 
 def craw_gdp():
-    # 参数
-    end_year = datetime.now().strftime('%Y')
     # 爬取
-    df_result = af.get_json('fsjd', 'A010101', end_year)
+    df_result = af.get_json('fsjd', 'A010101', 'LAST12')
     # 读取历史数据
     df_history = pd.read_csv(out_path_gdp)
     # 合并结果并删除重复值

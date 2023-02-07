@@ -76,7 +76,7 @@ def get_json(dv, vc, dr):
 
     dbcode_value = dv
     wds_value = '[{"wdcode":"zb","valuecode":"%s"}]' % vc
-    dfwds_value = '[{"wdcode":"sj","valuecode": "%s"}]' % dr
+    dfwds_value = '[{"wdcode":"sj","valuecode":"%s"}]' % dr
     k1_value = str(int(time.time() * 1000))
     url = 'https://data.stats.gov.cn/easyquery.htm?m=QueryData&dbcode=%s&rowcode=reg&colcode=sj&wds=%s&dfwds=%s' \
           '&k1=%s&h=1' % (dbcode_value, wds_value, dfwds_value, k1_value)

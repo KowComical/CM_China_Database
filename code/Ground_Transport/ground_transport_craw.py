@@ -31,9 +31,8 @@ def main():
 def craw():
     # 参数
     end_year = datetime.now().strftime('%Y')
-    date_range = '1980-%s' % end_year
     # 爬取
-    df_result = af.get_json('fsnd', 'A0G0701', date_range)
+    df_result = af.get_json('fsnd', 'A0G0701', 'LAST5')
 
     # 线性填充缺失的汽车保有量
     df_result = pd.pivot_table(df_result, index='name', values='data', columns='date').reset_index()
@@ -47,7 +46,7 @@ def craw():
     # 合并新旧数据
     df_result = pd.concat([df_history, df_result]).reset_index(drop=True)
     # 删除重复值
-    df_result = df_result.groupby(['name', 'date', 'data']).mean().reset_index()
+    df_result = df_result[~df_result.duplicated(['name', 'date'])].reset_index(drop=True)
     # 输出raw
     df_result.to_csv(os.path.join(craw_path, '汽车保有量.csv'), index=False, encoding='utf_8_sig')
     # 继续清理

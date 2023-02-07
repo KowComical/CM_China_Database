@@ -2,7 +2,6 @@
 
 import pandas as pd
 import os
-from datetime import datetime
 
 import sys
 
@@ -38,19 +37,14 @@ def craw():
     code_list = code['code'].tolist()
     name_list = code['cname'].tolist()
 
-    end_year = datetime.now().strftime('%Y')
-
     for j, k in zip(code_list, name_list):
-        try:
-            df_result = af.get_json('fsyd', j, end_year)
-            df_result['type'] = k
-            # 将结果储存到历史数据里
-            df_history = pd.concat([df_history, df_result]).reset_index(drop=True)
-        except:
-            pass
+        df_result = af.get_json('fsyd', j, 'LAST13')
+        df_result['type'] = k
+        # 将结果储存到历史数据里
+        df_history = pd.concat([df_result, df_history]).reset_index(drop=True)
+
     # 输出结果
-    df_history = df_history[~df_history.duplicated()].reset_index(drop=True)  # 删除可能存在的重复值
-    df_history = df_history.groupby(['name', 'date', 'type']).mean().reset_index()
+    df_history = df_history[~df_history.duplicated(['name', 'date', 'type'])].reset_index(drop=True)
     df_history.to_csv(out_path, index=False, encoding='utf_8_sig')
 
 

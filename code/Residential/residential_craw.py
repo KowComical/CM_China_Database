@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 from sklearn.linear_model import LinearRegression
-from datetime import datetime
 
 import sys
 
@@ -21,12 +20,15 @@ def main():
 
 def craw():
     # 设置爬取范围
-    end_year = datetime.now().strftime('%Y')
-    date_range = '2004-%s' % end_year
     # 爬取数据
-    df_result = af.get_json('fsnd', 'A0B0507', date_range)
-    # 输出raw数据
-    df_result.to_csv(os.path.join(craw_path, '供热面积.csv'), index=False, encoding='utf_8_sig')
+    df_result = af.get_json('fsnd', 'A0B0507', 'LAST5')
+    # 读取历史数据
+    file = os.path.join(craw_path, '供热面积.csv')
+    df_history = pd.read_csv(file)
+    # 合并结果并删除重复值
+    df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
+    df_result = df_result[~df_result.duplicated(['name', 'date'])].reset_index(drop=True)
+    df_result.to_csv(file, index=False, encoding='utf_8_sig')
     # 继续清理
     df_result['data'] = df_result['data'] * 10000  # 亿平方米转为万立方迷
     df_result['date'] = df_result['date'].str.replace('年', '').astype(int)
