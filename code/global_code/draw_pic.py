@@ -76,8 +76,6 @@ def draw_pic():
                                                        label='_nolegend_')
             plt.fill_between(df_max['month_date'], df_max['max'], df_min['min'], alpha=0.5, color='tab:grey')
             df_2022.set_index('month_date')[category_name].plot(color=color_choose, linewidth=18)
-            if category_name == 'Ground Transport':
-                category_name = 'Ground_Transport'
             # add the custom ticks and labels
             plt.xticks(np.linspace(0, 365, 13), months)
             plt.xticks(size=80)
