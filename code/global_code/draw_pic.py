@@ -41,6 +41,8 @@ def draw_pic():
     num = [i for i in range(len(pro_list))]
 
     for category_name, color_choose in zip(sector_list, palette):
+        if category_name == 'Total':
+            color_choose = 'tab:blue'
         out_name = category_name.capitalize()
         fig = plt.figure(figsize=(140, 100))
         for co, i in zip(pro_list, num):
@@ -69,12 +71,12 @@ def draw_pic():
             df_min = df_result[['month_date', 'min']]
             df_max = df_result[['month_date', 'max']]
 
-            ax = df_max.set_index('month_date')['max'].plot(color='tab:brown', linewidth=10, alpha=0,
+            ax = df_max.set_index('month_date')['max'].plot(color='tab:brown', linewidth=15, alpha=0,
                                                             label='_nolegend_')
-            df_min.set_index('month_date')['min'].plot(ax=ax, color='tab:grey', linewidth=10, alpha=0,
+            df_min.set_index('month_date')['min'].plot(ax=ax, color='tab:grey', linewidth=15, alpha=0,
                                                        label='_nolegend_')
             plt.fill_between(df_max['month_date'], df_max['max'], df_min['min'], alpha=0.5, color='tab:grey')
-            df_2022.set_index('month_date')[category_name].plot(color=color_choose, linewidth=10)
+            df_2022.set_index('month_date')[category_name].plot(color=color_choose, linewidth=18)
 
             # add the custom ticks and labels
             plt.xticks(np.linspace(0, 365, 13), months)
