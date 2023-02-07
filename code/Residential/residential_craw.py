@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from datetime import datetime
 from sklearn.linear_model import LinearRegression
 
 import sys
@@ -19,6 +20,8 @@ def main():
 
 
 def craw():
+    # 参数
+    end_year = datetime.now().strftime('%Y')
     # 设置爬取范围
     # 爬取数据
     df_result = af.get_json('fsnd', 'A0B0507', 'LAST5')
