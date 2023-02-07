@@ -38,7 +38,7 @@ def craw():
     name_list = code['cname'].tolist()
 
     for j, k in zip(code_list, name_list):
-        time.slee(2)
+        time.sleep(2)
         df_result = af.get_json('fsyd', j, 'LAST13')
         df_result['type'] = k
         # 将结果储存到历史数据里

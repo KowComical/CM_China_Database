@@ -45,7 +45,7 @@ def process():
             print(xu)
 
     # # 数据清洗
-    df_data = df_data.groupby(['name', 'date', 'type']).mean().reset_index()
+    df_data = df_data.groupby(['name', 'date', 'type']).mean(numeric_only=True).reset_index()
     df_data = df_data.rename(columns={'type': '指标', 'date': '时间', 'data': '值', 'name': '省市名称'})
 
     # 读取工作日
@@ -78,11 +78,11 @@ def process():
         df_result = pd.concat([df_result, df_dangqi]).reset_index(drop=True)  # 合并所有结果到新的df
     # 计算占比
     df_result = pd.merge(df_sector, df_result).drop(columns=['Ratio', '数据名称'])
-    df_sum = df_result.groupby(['时间', '类型']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_sum = df_result.groupby(['时间', '类型']).sum(numeric_only=True).reset_index().rename(columns={'value': 'sum'})
     df_result = pd.merge(df_result, df_sum)
     df_result['ratio'] = df_result['value'] / df_result['sum']
     df_result = df_result.drop(columns=['value', 'sum'])
-    df_ratio = df_result.groupby(['部门', '地区', '时间']).mean().reset_index()
+    df_ratio = df_result.groupby(['部门', '地区', '时间']).mean(numeric_only=True).reset_index()
     # 按照占比拆分daily数据
     df_ratio['时间'] = pd.to_datetime(df_ratio['时间'], format='%Y年%m月')
     df_ratio['year'] = df_ratio['时间'].dt.year
@@ -94,7 +94,7 @@ def process():
     df_result['daily'] = df_result['值'] * df_result['ratio']
     df_result = df_result[['date', '部门', '地区', 'daily']]
     # 中文改英文名
-    df_result = df_result.groupby(['date', '地区']).sum().reset_index().rename(columns={'地区': 'city'})
+    df_result = df_result.groupby(['date', '地区']).sum(numeric_only=True).reset_index().rename(columns={'地区': 'city'})
     df_city = pd.read_csv(os.path.join(useful_path, 'city_name.csv')).rename(columns={'全称': 'city'})
     df_result = pd.merge(df_result, df_city)[['date', '拼音', 'daily']]
     df_result['daily'] = df_result['daily']

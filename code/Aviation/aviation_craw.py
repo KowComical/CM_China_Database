@@ -116,7 +116,8 @@ def craw_gdp():
     df_history = pd.read_csv(out_path_gdp)
     # 合并结果并删除重复值
     df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
-    df_result = df_result.groupby(['name', 'date']).mean().reset_index()
+    # 删除重复值
+    df_result = df_result[~df_result.duplicated(['name', 'date'])].reset_index(drop=True)
     # 输出结果
     df_result.to_csv(out_path_gdp, index=False, encoding='utf_8_sig')
 
@@ -175,7 +176,7 @@ def gdp_raw():
         df_all = pd.concat([df_all, df_result]).reset_index(drop=True)
     # 统一省份名
     df_all = pd.merge(df_all, df_city, left_on='province', right_on='全称')[['区域', '拼音', 'date', 'value']]
-    df_all = df_all.groupby(['区域', '拼音', 'date']).mean().reset_index()
+    df_all = df_all.groupby(['区域', '拼音', 'date']).mean(numeric_only=True).reset_index()
     # 输出
     df_all.to_csv(os.path.join(raw_path, 'gdp_raw.csv'), index=False, encoding='utf_8_sig')
 
@@ -183,7 +184,7 @@ def gdp_raw():
 def ratio():
     # 按地区算各省份gdp占比
     df_all = pd.read_csv(os.path.join(raw_path, 'gdp_raw.csv'))
-    df_sum = df_all.groupby(['区域', 'date']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_sum = df_all.groupby(['区域', 'date']).sum(numeric_only=True).reset_index().rename(columns={'value': 'sum'})
     df_all = pd.merge(df_all, df_sum)
     df_all['ratio'] = df_all['value'] / df_all['sum']
     df_all = df_all[['区域', '拼音', 'date', 'ratio']].reset_index(drop=True)
@@ -195,7 +196,7 @@ def ratio():
     df_ratio['value'] = df_ratio['zhibiao'] * df_ratio['ratio']
     # 做最后一步全国占比
     df_ratio = df_ratio[['date', '拼音', 'value']]
-    df_country = df_ratio.groupby(['date']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_country = df_ratio.groupby(['date']).sum(numeric_only=True).reset_index().rename(columns={'value': 'sum'})
     df_result = pd.merge(df_ratio, df_country)
     df_result['ratio'] = df_result['value'] / df_result['sum']
     df_result = df_result[['date', '拼音', 'ratio']]

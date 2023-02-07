@@ -29,7 +29,7 @@ def process():
     df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
     df_daily['year'] = df_daily['date'].dt.year
     df_daily['month'] = df_daily['date'].dt.month
-    df_sum = df_daily.groupby(['year', 'month']).sum().reset_index().rename(columns={'value': 'sum'})
+    df_sum = df_daily.groupby(['year', 'month']).sum(numeric_only=True).reset_index().rename(columns={'value': 'sum'})
     df_ratio = pd.merge(df_daily, df_sum)
     df_ratio['ratio'] = df_ratio['value'] / df_ratio['sum']
     df_ratio = df_ratio[['year', 'month', 'ratio', 'date']]

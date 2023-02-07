@@ -16,7 +16,7 @@ def read_daily(useful_path, sector):
     df = pd.read_csv(cm_path)  # 全国日排放
     df = df[(df['country'] == 'China') & (
         df['sector'].str.contains(sector))].reset_index(drop=True)
-    df = df.groupby(['date']).sum().reset_index().drop(columns=['timestamp'])
+    df = df.groupby(['date']).sum(numeric_only=True).reset_index().drop(columns=['timestamp'])
     return df
 
 
@@ -139,3 +139,11 @@ def update_date(df):
         d = ImageDraw.Draw(img)
         d.text((10, height / 4), max_date, fill=colorText, font=font)
         img.save(os.path.join(image_path, '%s.png' % s))
+
+
+def create_folder(file_path, Type):  # 建立需要的文件夹
+    import os
+    from pathlib import Path
+    out_path = os.path.join(file_path, Type)
+    Path(out_path).mkdir(parents=True, exist_ok=True)
+    return out_path

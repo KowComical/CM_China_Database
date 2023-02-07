@@ -30,7 +30,7 @@ def process():
     df_ratio = df_ratio.set_index(['Province']).stack().reset_index().rename(columns={'level_1': 'year', 0: 'ratio'})
     df_ratio['year'] = df_ratio['year'].astype(int)
 
-    df_sum = df_ratio.groupby(['year']).sum().reset_index().rename(columns={'ratio': 'sum'})
+    df_sum = df_ratio.groupby(['year']).sum(numeric_only=True).reset_index().rename(columns={'ratio': 'sum'})
     df_ratio = pd.merge(df_ratio, df_sum)
     df_ratio['ratio'] = df_ratio['ratio'] / df_ratio['sum']
     df_ratio = df_ratio[['Province', 'year', 'ratio']].rename(columns={'Province': 'state'})

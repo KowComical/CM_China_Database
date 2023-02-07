@@ -22,10 +22,11 @@ import Industry.industry as ii
 import Power.power as pp
 import Residential.residential as rr
 import global_code.all_sum as ga
+import global_code.draw_pic as dp
 
 
 # from contextlib import suppress
-func_list = [gd, aa, gg, ii, pp, rr, ga]
+func_list = [gd, aa, gg, ii, pp, rr, ga, dp]
 for my_func in func_list:
     # with suppress(Exception):  # 如果出错则pass（并不报错） 这里并不用这种办法
     function_name = re.findall(r"([^\\/]*).....$", str(my_func))[0]
