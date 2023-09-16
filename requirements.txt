@@ -1,8 +1,8 @@
-matplotlib==3.7.3
-numpy==1.25.2
+matplotlib==3.8.0
+numpy==1.26.0
 pandas==2.1.0
 pdfplumber==0.10.2
-Pillow==10.0.0
+Pillow==10.0.1
 pyautogui==0.9.54
 python_dateutil==2.8.2
 Requests==2.31.0
