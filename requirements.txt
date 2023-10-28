@@ -1,7 +1,7 @@
 matplotlib==3.8.0
 numpy==1.26.1
-pandas==2.1.1
-pdfplumber==0.10.2
+pandas==2.1.2
+pdfplumber==0.10.3
 Pillow==10.1.0
 pyautogui==0.9.54
 python_dateutil==2.8.2
