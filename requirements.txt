@@ -1,4 +1,4 @@
-matplotlib==3.8.4
+matplotlib==3.9.0
 numpy==1.26.4
 pandas==2.2.2
 pdfplumber==0.11.0
@@ -7,5 +7,5 @@ pyautogui==0.9.54
 python_dateutil==2.9.0.post0
 Requests==2.31.0
 scikit_learn==1.4.2
-selenium==4.20.0
+selenium==4.21.0
 webdriver_manager==4.0.1
