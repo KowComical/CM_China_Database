@@ -2,8 +2,8 @@ import requests
 import pandas as pd
 import os
 
-BASE_URL = 'datas.carbonmonitor.org/API/'
-CREDENTIALS = 'lsce:k9d2%euR%276~eXW$%'
+BASE_URL = '####'
+CREDENTIALS = '####'
 
 sector_dict = {
     '主站': 'carbon_global',
