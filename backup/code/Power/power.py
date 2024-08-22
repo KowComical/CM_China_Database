@@ -1,16 +1,19 @@
 import pandas as pd
 import os
+from datetime import datetime
 from sklearn.linear_model import LinearRegression
 
 import sys
 
-env_path = '/data3/kow/CM_China_Database'
+env_path = '/data/xuanrenSong/CM_China_Database'
 sys.path.append(os.path.join(env_path, 'code'))
 
 from global_code import global_function as af
 from Power import power_craw as pc
 
 global_path, raw_path, craw_path, useful_path, out_path = af.useful_element('Power')
+
+end_year = datetime.now().strftime('%Y')
 
 
 def main():
@@ -20,8 +23,8 @@ def main():
 
 def process():
     # 读取daily数据 并计算占比
-    df_daily = af.read_daily('Power')
-
+    df_daily = af.read_daily(useful_path, 'Power')
+    df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
     df_daily['year'] = df_daily['date'].dt.year
     df_daily['month'] = df_daily['date'].dt.month
     df_sum = df_daily.groupby(['year', 'month']).sum(numeric_only=True).reset_index().rename(columns={'value': 'sum'})
@@ -39,22 +42,17 @@ def process():
 
     df_dangqi = pd.pivot_table(df_dangqi, index='name', values='data', columns='date').reset_index()
     df_leiji = pd.pivot_table(df_leiji, index='name', values='data', columns='date').reset_index()
-    # 去除还没有2月的1月
-    df_dangqi = af.find_missing_month(df_dangqi)
-    df_leiji = af.find_missing_month(df_leiji)
 
     # 读取工作日
-    work = af.process_workday()
+    work = pd.read_csv(os.path.join(useful_path, 'workday.csv'))
+    work['date'] = work['year'].astype(str) + '年' + work['month'].astype(str) + '月'
+
     # 补全缺失的1&2月当月值
     min_year = int(min(df_dangqi.columns[1:])[:4])
     max_year = int(max(df_dangqi.columns[1:])[:4])
-    for year in range(min_year, max_year + 1):  # 按照当前的年份的最小值和最大值来填充1月和2月数据
-        # 定义1月和2月的变量
-        jan_month = f'{year}年1月'
-        feb_month = f'{year}年2月'
-
-        df_dangqi[jan_month] = df_leiji[feb_month] * work[work['date'] == jan_month]['ratio'].values
-        df_dangqi[feb_month] = df_leiji[feb_month] * work[work['date'] == feb_month]['ratio'].values
+    for i in range(min_year, max_year + 1):  # 按照当前的年份的最小值和最大值来填充1月和2月数据
+        df_dangqi['%s年1月' % i] = df_leiji['%s年2月' % i] * work[work['date'] == '%s年1月' % i]['ratio'].values
+        df_dangqi['%s年2月' % i] = df_leiji['%s年2月' % i] * work[work['date'] == '%s年2月' % i]['ratio'].values
     # 整理当期数据
     df_dangqi = df_dangqi.rename(columns={'name': '地区'})
     df_dangqi = df_dangqi.set_index(['地区']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'value'})
@@ -66,13 +64,14 @@ def process():
     df_dangqi = pd.merge(df_dangqi, df_city)[['date', 'year', '拼音', 'value']].rename(columns={'拼音': 'state'})
 
     # 乘以排放因子
-    max_year = max(df_dangqi['year'])
-    df_ef = predict_ef(max_year)
+    df_ef = predict_ef()
+    df_ef = df_ef.set_index(['省级电网']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'ef'}).rename(
+        columns={'省级电网': 'state'})
 
-    df_ef = pd.merge(df_ef, df_city, left_on='省级电网', right_on='中文')[['date', '拼音', 'data']].rename(
-        columns={'拼音': 'state', 'date': 'year', 'data': 'ef'})
+    df_ef = pd.merge(df_ef, df_city, left_on='state', right_on='中文')[['date', '拼音', 'ef']].rename(
+        columns={'拼音': 'state', 'date': 'year'})
 
-    df_result = pd.merge(df_dangqi, df_ef).sort_values(by='date')
+    df_result = pd.merge(df_dangqi, df_ef)
     df_result['value'] = df_result['value'] * df_result['ef'] * 0.1  # 将所有值都乘以0.1 保持单位一致
     df_result['month'] = df_result['date'].dt.month
     df_result = df_result.drop(columns=['ef', 'date'])
@@ -86,48 +85,41 @@ def process():
     af.out_put(df_result, out_path, 'Power')
 
 
-def predict_ef(max_year):
+def predict_ef():
     df = pd.read_csv(os.path.join(raw_path, 'ef.csv'))
     df = df.set_index(['省级电网']).stack().reset_index().rename(columns={'level_1': 'date', 0: 'data'})
     df['date'] = 2000 + df['date'].str.replace('年排放因子', '').astype(int)
-
-    province_list = df['省级电网'].unique()
-    start_year = max(df['date']) + 1
-
-    df_temp = []
+    df_result = df.copy()
+    province_list = df_result['省级电网'].unique()
+    start_year = max(df_result['date']) + 1
+    df_predicted = pd.DataFrame()
     for p in province_list:
-        temp = df[df['省级电网'] == p].reset_index(drop=True)
+        temp = df_result[df_result['省级电网'] == p].reset_index(drop=True)
         # 线性填充
-        for year in range(start_year, max_year + 1):
-            X = temp['date'].values.reshape(-1, 1)  # 日期数据
-            y = temp['data'].values.reshape(-1, 1)  # 电力数据
+        for i in range(start_year, int(end_year) + 1):
+            X = temp['date'].values.reshape(-1, 1)  # put your dates in here
+            y = temp['data'].values.reshape(-1, 1)  # put your kwh in here
 
             model = LinearRegression()
             model.fit(X, y)
 
-            X_predict = pd.DataFrame([year]).values.reshape(-1, 1)  # 需要预测的日期
+            X_predict = pd.DataFrame([i]).values.reshape(-1, 1)  # put the dates of which you want to predict kwh here
             y_predict = model.predict(X_predict)
 
-            # 提取 y_predict 中的单个元素，并正确转换为 float
-            y_predict_single = float(y_predict[0][0])
-
-            # 将预测结果添加到 DataFrame
-            predict = pd.DataFrame([[year, y_predict_single]], columns=['date', 'data'])
-            predict['省级电网'] = p  # 添加省份标识
-            df_temp.append(predict)
-
-    df_predicted = pd.concat(df_temp).reset_index(drop=True)
+            # 将结果加入df中
+            predict = pd.DataFrame([[int(X_predict), float(y_predict)]], columns=temp.columns[1:])
+            predict['省级电网'] = p
+            temp = pd.concat([temp, predict]).reset_index(drop=True)
+            df_predicted = pd.concat([df_predicted, temp]).reset_index(drop=True)
 
     # 将所有预测的不好的改为0
     df_null = df_predicted[df_predicted['data'] < 0].reset_index(drop=True)
     df_null['data'] = 0
     df_rest = df_predicted[df_predicted['data'] >= 0].reset_index(drop=True)
     df_all = pd.concat([df_null, df_rest]).reset_index(drop=True)
-    # 和旧的合并
-    df_final = pd.concat([df, df_all]).reset_index(drop=True)
-    df_final = df_final.drop_duplicates(subset=['省级电网', 'date'])
-
-    return df_final
+    # 列转行
+    df_all = pd.pivot_table(df_all, index='省级电网', values='data', columns='date').reset_index()
+    return df_all
 
 
 if __name__ == '__main__':

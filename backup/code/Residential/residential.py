@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import sys
 
-env_path = '/data3/kow/CM_China_Database'
+env_path = '/data/xuanrenSong/CM_China_Database'
 sys.path.append(os.path.join(env_path, 'code'))
 
 from global_code import global_function as af
@@ -18,8 +18,8 @@ def main():
 
 def process():
     # 读取Residential的daily数据
-    df_daily = af.read_daily('Residential')
-
+    df_daily = af.read_daily(useful_path, 'Residential')
+    df_daily['date'] = pd.to_datetime(df_daily['date'], format='%d/%m/%Y')
     df_daily['year'] = df_daily['date'].dt.year
 
     # 读取取暖面积的省级权重

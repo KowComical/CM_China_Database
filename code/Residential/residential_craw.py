@@ -6,13 +6,12 @@ from sklearn.linear_model import LinearRegression
 import sys
 
 sys.dont_write_bytecode = True
-sys.path.append('./code/')
+env_path = '/data3/kow/CM_China_Database'
+sys.path.append(os.path.join(env_path, 'code'))
+
 from global_code import global_function as af
 
-global_path = './data/'
-raw_path = os.path.join(global_path, 'Residential', 'raw')
-craw_path = os.path.join(global_path, 'Residential', 'craw')
-useful_path = os.path.join(global_path, 'global_data')
+global_path, raw_path, craw_path, useful_path, out_path = af.useful_element('Residential')
 
 
 def main():
@@ -24,10 +23,12 @@ def craw():
     end_year = datetime.now().strftime('%Y')
     # 设置爬取范围
     # 爬取数据
-    df_result = af.get_json('fsnd', 'A0B0507', 'LAST5')
+    df_result = af.get_json('fsnd', 'A0B0507', 'LAST5', jing=False)
     # 读取历史数据
     file = os.path.join(craw_path, '供热面积.csv')
     df_history = pd.read_csv(file)
+    # 去除乱码
+    df_history = df_history[df_history['name'].str.contains('市|省|区')].reset_index(drop=True)
     # 合并结果并删除重复值
     df_result = pd.concat([df_result, df_history]).reset_index(drop=True)
     df_result = df_result[~df_result.duplicated(['name', 'date'])].reset_index(drop=True)

@@ -1,10 +1,11 @@
 import pandas as pd
 import os
+import sys
 import time
 from datetime import datetime, timezone
 
-import sys
-env_path = '/data3/kow/CM_China_Database'
+sys.dont_write_bytecode = True
+env_path = '/data/xuanrenSong/CM_China_Database'
 sys.path.append(os.path.join(env_path, 'code'))
 
 from global_code import global_function as af
@@ -22,12 +23,11 @@ def process():
     file_name = af.search_file(global_path)
     file_name = [file_name[i] for i, x in enumerate(file_name) if x.find('cleaned') != -1]  # 只要整理完的
     file_name = [file_name[i] for i, x in enumerate(file_name) if not x.find('history') != -1]  # 只要最新的
-    file_name = [file_name[i] for i, x in enumerate(file_name) if not x.find('summed') != -1]
-    file_name = [file_name[i] for i, x in enumerate(file_name) if not x.find('monthly') != -1]
 
     df_all = pd.concat([pd.read_csv(f) for f in file_name]).reset_index(drop=True)
     df_all['date'] = pd.to_datetime(df_all['date'])
-
+    # 获取所有部门的更新最大日期
+    af.update_date(df_all)
     # 取日期最大公约数
     max_date = max(df_all['date'])
     sector_list = df_all['sector'].unique()
@@ -59,10 +59,9 @@ def process():
     df_all = df_all[['state', 'date', 'sector', 'value', 'timestamp']]  # 不这样做就会有bug 我也不知道为什么
     df_all['state'] = df_all['state'].str.replace('InnerMongolia', 'Inner Mongolia')
     df_all['sector'] = df_all['sector'].str.replace('Ground_Transport', 'Ground Transport')
-    df_all.to_csv(os.path.join(out_path, 'cm_china_to_student.csv'), index=False, encoding='utf_8_sig')
     df_all['date'] = df_all['date'].dt.strftime('%d/%m/%Y')
 
-    df_all.to_csv(os.path.join(out_path, 'cm_china.csv'), index=False, encoding='utf_8_sig')
+    df_all.to_csv(os.path.join(out_path, 'all_data.csv'), index=False, encoding='utf_8_sig')
 
 
 if __name__ == '__main__':

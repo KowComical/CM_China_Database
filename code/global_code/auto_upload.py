@@ -1,56 +1,94 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-import logging
-
-logging.getLogger('WDM').setLevel(logging.NOTSET)  # 关闭运行chrome时的打印内容
-
-import time
+import requests
 import pandas as pd
 import os
-import sys
 
-sys.dont_write_bytecode = True
-import pyautogui
+BASE_URL = 'datas.carbonmonitor.org/API/'
+CREDENTIALS = 'lsce:k9d2%euR%276~eXW$%'
 
-import logging
-
-logging.getLogger('WDM').setLevel(logging.NOTSET)  # 关闭运行chrome时的打印内容
-
-file_path = './data/global_data/'
+sector_dict = {
+    '主站': 'carbon_global',
+    '美国': 'carbon_us',
+    '中国': 'carbon_china',
+    '城市': 'carbon_cities',
+    '电力': 'energy_global',
+    '欧洲': 'carbon_eu'
+}
 
 
 def main():
-    upload()
+    file_path = '/data3/kow/CM_China_Database/data/global_data/cm_china.csv'
+    sector_type = '中国'
+    # 上传数据
+    upload_file(file_path, sector_type)
+    # 找到新数据的ID
+    file_id = find_file_active_ID(sector_type)
+    # 激活新数据
+    active_file(sector_type, file_id)
+    # 删除所有其他数据
+    remove_file(sector_type)
+
+    print(f"{sector_type}部门的新数据 - {os.path.basename(file_path)} - 已经成功上传了")
 
 
-def upload():
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)  # 打开浏览器
-    driver.implicitly_wait(60)
-    driver.get('https://lsce:lsce2021BPwd@datas.carbonmonitor.org/admin/')  # 登录网址
+def upload_file(file_path, sector_type):
+    with open(file_path, 'rb') as file:
+        files = {'fileToUpload': file}
+        data = {'source': sector_dict[sector_type]}
 
-    driver.find_element(By.XPATH, "//a[@data-source='carbon_china']").click()  # 点击energy global这一行
-    driver.find_element(By.XPATH, "//label[@class='custom-file-upload']").click()  # 点击上传
-    time.sleep(5)
-    # 试试这样
-    df = pd.read_csv(os.path.join(file_path, 'all_data.csv'))
-    df.to_csv('C:\\all_data.csv', index=False, encoding='utf_8_sig')
-    time.sleep(5)
-    pyautogui.write('C:\%s.csv' % 'all_data')  # 输入文件
-    time.sleep(1)
-    pyautogui.press('enter')  # 点击确定
+        upload_url = f"https://{CREDENTIALS}@{BASE_URL}insertCSVTableFile.php"
+        response = requests.post(upload_url, files=files, data=data)
 
-    driver.find_element(By.XPATH, "//button[@class='enabled']").click()  # 点击确认上传
-    time.sleep(10)
-    # 点击active之前有时会卡住 所以需要刷新一下网页
-    driver.refresh()
-    time.sleep(5)
-    driver.find_element(By.XPATH, "//div[@class='active_radiobt']").click()  # 点击active
-    time.sleep(5)
-    driver.close()  # 关闭
+        if response.status_code != 200:
+            print("上传数据失败.")
+            raise
+
+
+def find_file_active_ID(sector_type):
+    html = requests.get(f"https://{CREDENTIALS}@{BASE_URL}getExtractions.php")
+
+    if html.status_code != 200:
+        print("找到ID失败.")
+        raise
+
+    df = pd.DataFrame(html.json()['extractions'])
+    df = df[df['source'] == sector_dict[sector_type]].reset_index(drop=True)
+
+    if df.iloc[0]['active'] == '0':
+        return df.iloc[0]['id']
+    else:
+        print('数据是否并未上传成功？')
+        raise
+
+
+def active_file(sector_type, file_id):
+    activation_url = f"https://{CREDENTIALS}@{BASE_URL}activateExtraction.php"
+    activation_data = {'source': sector_dict[sector_type], 'activeID': file_id}
+    activation_response = requests.post(activation_url, data=activation_data)
+
+    if activation_response.status_code != 200:
+        print("激活新数据失败.")
+        raise
+
+
+def remove_file(sector_type):
+    html = requests.get(f"https://{CREDENTIALS}@{BASE_URL}getExtractions.php")
+
+    if html.status_code != 200:
+        print("找到ID失败.")
+        raise
+
+    df = pd.DataFrame(html.json()['extractions'])
+    df = df[df['source'] == sector_dict[sector_type]]
+    df = df[df['active'] != '1'].reset_index(drop=True)
+
+    for file_id in df['id'].unique()[3:]:  # 保留最近3份历史数据
+        remove_url = f"https://{CREDENTIALS}@{BASE_URL}deleteExtraction.php"
+        remove_data = {'source': sector_dict[sector_type], 'extractionID': file_id}
+        remove_response = requests.post(remove_url, data=remove_data)
+
+        if remove_response.status_code != 200:
+            print("删除文件失败.")
+            raise
 
 
 if __name__ == '__main__':
