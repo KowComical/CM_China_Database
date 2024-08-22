@@ -6,8 +6,8 @@ import os
 import time
 
 SMTP_SERVER = "smtp.gmail.com"
-SENDER_EMAIL = "kowdataanalyze@gmail.com"
-SENDER_PASSWORD = "dssbvynatgvonzbl"
+SENDER_EMAIL = "####"
+SENDER_PASSWORD = "####"
 
 
 def main(file_path):
